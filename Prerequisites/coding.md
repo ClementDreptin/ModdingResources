@@ -6,4 +6,6 @@ I personally learned C++ almost entirely with his videos, he takes time to go in
 - [Jacob Sorber](https://www.youtube.com/jacobsorber)  
 Jacob Sorber's channel is a good resource to understand low-level concepts such as memory layouts, threads, sockets, system calls and more. He uses C on POSIX systems which is not the usual environment video-games run in but it will help you understand low-level concepts.
 
+<br/><br/>
+
 &rarr; [Next: Reading assembly language (PowerPC)](assembly.md)

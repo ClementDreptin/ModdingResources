@@ -27,4 +27,6 @@ IBM is one of the companies that created PowerPC, their website is, therefore, o
 - [PPC - Basics Tutorial](https://www.se7ensins.com/forums/threads/ppc-basics-tutorial.927634/) from Const  
 Reading the IBM documentation can be a little overwhelming so Const made a concise tutorial with the most common instructions you need to understand to get started.
 
+<br/><br/>
+
 &rarr; [Next: Installing the development environment](install-env.md)

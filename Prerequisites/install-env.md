@@ -16,3 +16,7 @@ During the installation process, you will be asked if you want to make a full in
 To make sure everything is set up, open Visual Studio and try to create a new project. Under C/C++, you should be able to create an Xbox 360 project, if not, repeat the previous steps.
 
 <img src="../Resources/Screenshots/vs-create-project.png" alt="Visual Studio Xbox 360 Project"/>
+
+<br/><br/>
+
+&rarr; [Next: Optional knowledge](optional.md)
