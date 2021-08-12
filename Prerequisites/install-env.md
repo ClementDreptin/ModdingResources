@@ -10,9 +10,9 @@ Download Visual Studio 2010 Ultimate [here](https://my.visualstudio.com/Download
 The XDK is distributed my Microsoft to certified developers. You are probably not one and can't afford a license so I'll let you find a download link online to get it for free, there are plenty. As of August 10<sup>th</sup> of 2021, the latest XDK version is 21256.3 and I highly doubt any new ones will ever release so make sure you download this one.
 During the installation process, you will be asked if you want to make a full installation or minimal installation, make sure you click on full installation to install the Visual Studio integration for the XDK. If the option is greyed out, it means you did not install Visual Studio properly.
 
-**TODO: ADD SCREENSHOT OF XDK PROMPT**
+<img src="../Resources/Screenshots/xdk-install-prompt.png" alt="XDK Installation"/>
 
 ## Making sure everything is set up
 To make sure everything is set up, open Visual Studio and try to create a new project. Under C/C++, you should be able to create an Xbox 360 project, if not, repeat the previous steps.
 
-**TODO: ADD VISUAL STUDIO PROJECT SCREENSHOT**
+<img src="../Resources/Screenshots/vs-create-project.png" alt="Visual Studio Xbox 360 Project"/>

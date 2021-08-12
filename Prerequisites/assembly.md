@@ -12,13 +12,13 @@ You can do this by using a disassembler, the most common one (and the only one t
 In order to open Xbox 360 executable files (XEX), you'll need the [idaxex](https://github.com/emoose/idaxex) plugin (installation instructions are in the README).
 Once everything is installed and set up, you can simply drag your XEX file in IDA and prompt like this should appear.
 
-**TODO: ADD PROMPT SCREENSHOT**
+<img src="../Resources/Screenshots/ida-xex-prompt.png" alt="IDA Load XEX"/>
 
 The options selected by default should be good, if not, set them as above and click OK.
 
 And voilà! Your XEX file is converted to assembly!
 
-**TODO: ADD ASSEMBLY SCREENSHOT**
+<img src="../Resources/Screenshots/ida.png" alt="IDA"/>
 
 ## Ok, what the hell is this?
 PowerPC is pretty straight forward to learn because there not that many instructions. Here's a list of references that I learned from:
