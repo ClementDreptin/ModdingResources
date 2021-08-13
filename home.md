@@ -11,4 +11,5 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
   1.2. [Coding in a (relatively) low-level programming language (C/C++)](Prerequisites/coding.md)  
   1.3. [Reading assembly language (PowerPC)](Prerequisites/assembly.md)  
   1.4. [Installing the development environment](Prerequisites/install-env.md)  
-  1.5. [Optional knowledge](Prerequisites/optional.md)
+  1.5. [Optional knowledge](Prerequisites/optional.md)  
+2. [Getting started](getting-started.md)
