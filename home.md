@@ -7,7 +7,8 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
 
 ## Table of contents
 1. [Prerequisites](Prerequisites/prerequisites.md)  
-  1.1. [Coding in a (relatively) low-level programming language (C/C++)](Prerequisites/coding.md)  
-  1.2. [Reading assembly language (PowerPC)](Prerequisites/assembly.md)  
-  1.3. [Installing the development environment](Prerequisites/install-env.md)  
-  1.4. [Optional knowledge](Prerequisites/optional.md)
+  1.1. [Setting up the console](Prerequisites/console-setup.md)  
+  1.2. [Coding in a (relatively) low-level programming language (C/C++)](Prerequisites/coding.md)  
+  1.3. [Reading assembly language (PowerPC)](Prerequisites/assembly.md)  
+  1.4. [Installing the development environment](Prerequisites/install-env.md)  
+  1.5. [Optional knowledge](Prerequisites/optional.md)
