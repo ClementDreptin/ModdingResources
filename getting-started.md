@@ -12,7 +12,7 @@ On the next prompt, click `Next` then click `Finish`.
 
 Before writing any code, you'll need to set up a few things in Visual Studio to be able to compile and deploy to your console successfully. In the `Solution Explorer`, right-click on your project and click on `Properties` and make sure you are in the `Configuration Properties` tab (you should be by default).
 
-- Go to `General` and set your application type is to Dynamic Library (.xex).
+- Go to `General` and set your application type to Dynamic Library (.xex).
 -  **TODO: only keep Release_LTCG config**
 - Some properties about the XEX file can be set with an XML configuration file. Create an XML file that looks like this:
     ```XML
@@ -32,12 +32,12 @@ Before writing any code, you'll need to set up a few things in Visual Studio to 
       </gameregion>
     </xex>
     ```
-    The base address doesn't need to be `0x91D00000` but the it must not conflict with the base address of any other loaded plugin and must be greater `0x82000000` + the size of the application currently running. I recommended setting the base address as anything greater than `0x90000000`.
+    The base address doesn't need to be `0x91D00000` but it must not conflict with the base address of any other loaded plugin and must be greater than `0x82000000` + the size of the application currently running. I recommended setting the base address as anything greater than `0x90000000`.
     Now set this file as your config file in `Xbox 360 Image Conversion > General > Configuration File`.
 - **TODO: Console deployment settings**
 
 ## Hello World!
-Once your project is set up, place everything from your main cpp file with that:
+Once your project is set up, replace everything from your main cpp file with that:
 ```C++
 #include "stdafx.h"
 
