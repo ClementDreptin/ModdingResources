@@ -5,7 +5,7 @@ DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
 {
     HMODULE mHandle = GetModuleHandle(moduleName);
 
-	return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
+    return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
 }
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
