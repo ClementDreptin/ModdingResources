@@ -60,22 +60,33 @@ BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
 
 <br/>
 
-We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we are going to need to extract the `XNotifyQueueUI` function from `xam.xex`. Add that before your `DllMain` function:
+We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we are going to need to import the `XNotifyQueueUI` function from `xam.xex`. Add that before your `DllMain` function:
 ```C++
-DWORD ResolveFunction(const char* moduleName, DWORD ordinal)
+// Functions from xboxkrnl.lib
+extern "C"
 {
-    HMODULE mHandle = GetModuleHandle(moduleName);
+    DWORD XBOXAPI XexGetModuleHandle(LPCSTR moduleName, HANDLE* outHandle);
 
-    return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
+    DWORD XBOXAPI XexGetProcedureAddress(HANDLE hModule, DWORD ordinal, DWORD* outAddress);
 }
 
-void (*XNotifyQueueUI)(
-  int exnq,
-  DWORD dwUserIndex,
-  ULONGLONG qwAreas,
-  PWCHAR displayText,
-  PVOID contextData
-) = (void(*)(int, DWORD, ULONGLONG, PWCHAR, PVOID))ResolveFunction("xam.xex", 656);
+// Gets the address of the function in a module with its ordinal
+DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
+{
+    HANDLE mHandle;
+    DWORD funcAddr;
+    XexGetModuleHandle(moduleName, &mHandle);
+
+    if (mHandle == NULL)
+        return NULL;
+    
+    XexGetProcedureAddress(mHandle, ordinal, &funcAddr);
+
+    return funcAddr;
+}
+
+typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, PVOID contextData);
+XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
 ```
 
 <br/>
