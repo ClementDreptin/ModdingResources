@@ -19,3 +19,7 @@ Another good resource is the [Quake III Arena source code](https://github.com/id
 Since you're mostly interacting with game engines while modding games, you rarely ever need to understand what's under the hood and how to manipulate graphics APIs. Understanding how graphics are rendered onto a screen is always useful though, especially if you want to directly interact with the rendering abstraction the engine provides or need a lower-level access to do very specific tasks.
 A resource that I learned from is The Cherno's [OpenGL series](https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2). OpenGL is typically not the graphics API games use but it's the easiest one to understand and will help you get started with key concepts such as shaders, vertices, vertex buffers, buffer layouts, etc.
 If you want to mod games for the Microsoft eco-system (Xbox or Windows), you should look into [DirectX](https://en.wikipedia.org/wiki/DirectX) (graphics API used on Microsoft systems). A good resource to learn DirectX from is [Jpres'](https://www.youtube.com/user/Jpres) [C++ DirectX 11 series](https://www.youtube.com/playlist?list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2). The series is focused on DirectX 11 which is the most recent version of DirectX that's not to low-level (like DirectX 12 is) so it's accessible for beginners.
+
+<br/><br/>
+
+&rarr; [Next: Getting Started](../GettingStarted/getting-started.md)
