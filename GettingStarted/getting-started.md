@@ -23,18 +23,18 @@ Before writing any code, you'll need to set up a few things in Visual Studio to 
     ```XML
     <?xml version="1.0"?>
     <xex>
-      <baseaddr addr="0x91D00000"/>
-      <sysdll/>
-      <format>
-        <compressed/>
-      </format>
-      <mediatypes>
-        <default/>
-        <allpackages/>
-      </mediatypes>
-      <gameregion>
-        <all/>
-      </gameregion>
+        <baseaddr addr="0x91D00000"/>
+        <sysdll/>
+        <format>
+            <compressed/>
+        </format>
+        <mediatypes>
+            <default/>
+            <allpackages/>
+        </mediatypes>
+        <gameregion>
+            <all/>
+        </gameregion>
     </xex>
     ```
     The base address doesn't need to be `0x91D00000` but it must not conflict with the base address of any other loaded plugin and must be greater than `0x82000000` + the size of the application currently running. I recommended setting the base address as anything greater than `0x90000000`.
