@@ -14,3 +14,4 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
   1.5. [Optional knowledge](Prerequisites/optional.md)  
 2. [Getting started](GettingStarted/getting-started.md)
 3. [Development workflow](DevelopmentWorkflow/development-workflow.md)
+4. [Detecting games](detecting-games.md)
