@@ -16,9 +16,7 @@ The biggest downside is that it becomes very tricky to unload a DLL if this DLL 
 This is a problem because Dashlaunch does not create a thread for you when loading your DLL. This means that, if your DLL is built with an update loop (it's usually the case), you absolutely need to create a thread otherwise your DLL is going to heavily slow the main thread.
 
 ## Using a debug console (Xbox Watson)
-The XDK comes with a debug console called Xbox Watson, it's not that good and very buggy but that's all we have.
-
-**TODO: explain how to open and set up Xbox Watson**
+The XDK comes with a debug console called Xbox Watson, it's not that good and very buggy but that's all we have. A start menu shortcut is created automatically so you can open it just by searching "Xbox Watson" in your start menu. The first thing to do is to register your console with its IP address, Xbox Watson doesn't use your default console in Xbox 360 Neighborhood like Visual Studio does for deploying for some reason. Go to `Actions > Select Consoles...` then type the IP address of your console and click `Add`.
 
 In order to print a message in the Xbox Watson console you're going to need to use the `DbgPrint` function from `xboxkrnl.lib`. You can do so by adding the following code somewhere in your project:
 ```C++
@@ -30,5 +28,5 @@ DbgPrint("value: %i", 3); // Prints "value: 3"
 ```
 
 ### Disclaimer
-Xbox Watson is very buggy, especially when exceptions occur (that's the case when you just have an RGH and not an actual devkit at least). When Xbox Watson detects that an exception occured on your console, it's gonna tell you so and clicking OK or cancel will just make the pop-up appear again. At this point you're basically stuck, you can't close Xbox Watson by clicking the cross in the top-right corner so the only way to stop it is by killing its process in your task manager.
+Xbox Watson is very buggy, especially when exceptions occur (that's the case when you just have an RGH and not an actual devkit at least). When Xbox Watson detects that an exception occured on your console, it's going to tell you so and clicking OK or cancel will just make the pop-up appear again. At this point you're basically stuck, you can't close Xbox Watson by clicking the cross in the top-right corner so the only way to stop it is by killing its process in your task manager.
 One thing that's worth knowing, you can't use ModuleLoader if you have a connection open in Xbox Watson, I don't know if the bug comes from Xbox Watson or ModuleLoader, I haven't tested with any other remote tool. So, if you want to use ModuleLoader, be sure to close the Xbox Watson connection first.
