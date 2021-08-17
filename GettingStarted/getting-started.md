@@ -12,7 +12,7 @@ On the next prompt, click `Next` then click `Finish`.
 
 Before writing any code, you'll need to set up a few things in Visual Studio to be able to compile and deploy to your console successfully. In the `Solution Explorer`, right-click on your project and click on `Properties`. Make sure you are in the `Configuration Properties` tab (you should be by default).
 
-- Unless you have a devkit with the debug kernel, you can't debug remotely from Visual Studio, which means you can remove every configuration besides `Release_LTCG`. To do so, go to `Configuration Manager... > Active solution configuration > <Edit..>` and remove every configuration except `Release_LTCG`.
+- Unless you have a devkit with the debug kernel, you can't debug remotely from Visual Studio, which means you can remove every configuration besides `Release_LTCG`. To do so, go to `Configuration Manager... > Active solution configuration > <Edit...>` and remove every configuration except `Release_LTCG`.
 - Go to `General` and set your application type to `Dynamic Library (.xex)`.
 - Add this to your linker command line options in `Linker > Command Line`:
     ```
@@ -93,6 +93,17 @@ switch (fdwReason)
         break;
 }
 ```
+
+<br/>
+
+The last thing to do is setting the DLL as one of your Dashlaunch plugins. Edit the `hdd:\launch.ini` file located on your hard drive like so:
+```INI
+plugin1 = <path_to_xbdm>\xbdm.xex
+plugin2 = <path_to_your_dll>\<your_dll_name>.xex
+```
+Your DLL does not need to be set as the second plugin specifically, it's fine if you have other plugins between xbdm and your DLL. It is recommended to have xbdm set as your first plugin though, as some other plugins might depend on it.
+
+Now reboot your console to apply the settings.
 
 <br/>
 
