@@ -17,7 +17,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     switch (fdwReason) 
     {
         case DLL_PROCESS_ATTACH:
-			XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", 0);
+            XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", 0);
             break;
         case DLL_PROCESS_DETACH:
             break;

@@ -15,12 +15,25 @@ XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
 // Enum for game title IDs
 enum Games : DWORD
 {
-	DASHBOARD = 0xFFFE07D1,
-	MW2 = 0x41560817
+    DASHBOARD = 0xFFFE07D1,
+    MW2 = 0x41560817
 };
 
-// Import the XamGetCurrentTitleId function from xam
-extern "C" DWORD XamGetCurrentTitleId();
+// Imports from the Xbox libraries
+extern "C" 
+{
+    DWORD XamGetCurrentTitleId();
+
+    DWORD __stdcall ExCreateThread(
+        PHANDLE pHandle,
+        DWORD dwStackSize,
+        LPDWORD lpThreadId,
+        PVOID apiThreadStartup,
+        LPTHREAD_START_ROUTINE lpStartAddress,
+        LPVOID lpParameters,
+        DWORD dwCreationFlagsMod
+    );
+}
 
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
@@ -29,8 +42,11 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
     while (true)
     {
         DWORD newTitle = XamGetCurrentTitleId();
+
         if (newTitle != currentTitle)
         {
+            currentTitle = newTitle;
+
             switch (newTitle)
             {
                 case DASHBOARD:
@@ -52,7 +68,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     {
         case DLL_PROCESS_ATTACH:
             // Runs MonitorTitleId in separate thread
-			CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 0, nullptr);
+            ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
             break;
