@@ -45,10 +45,10 @@ VOID MonitorTitleId()
             switch (newTitle)
             {
                 case DASHBOARD:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", 0);
+                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
                 case MW2:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", 0);
+                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
         }
@@ -74,10 +74,10 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
             switch (newTitle)
             {
                 case DASHBOARD:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", 0);
+                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
                 case MW2:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", 0);
+                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
         }

@@ -87,7 +87,7 @@ We can now call `XNotifyQueueUI` when our DLL gets loaded like so:
 switch (fdwReason) 
 {
     case DLL_PROCESS_ATTACH:
-        XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", 0);
+        XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
         break;
     case DLL_PROCESS_DETACH:
         break;
