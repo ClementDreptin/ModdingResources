@@ -109,7 +109,7 @@ Now reboot your console to apply the settings.
 
 The result should look like this:
 
-**TODO: Add screenshot of XNotify**
+<img src="../Resources/Screenshots/xnotify.png" alt="XNotify"/>
 
 <br/>
 

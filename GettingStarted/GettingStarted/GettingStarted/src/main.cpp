@@ -14,7 +14,7 @@ XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
-    switch (fdwReason) 
+    switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", 0);
