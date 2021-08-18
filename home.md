@@ -16,4 +16,4 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
 2. [Getting started](GettingStarted/getting-started.md)  
 3. [Development workflow](DevelopmentWorkflow/development-workflow.md)  
 4. [Making a real DLL](DLL/making-dll.md)  
-    4.1. [Detecting games](DLL/detecting-games.md)  
+    4.1. [Detecting games](DLL/DetectingGames/detecting-games.md)  
