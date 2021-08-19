@@ -9,6 +9,9 @@ Before trying to find functions, you need to download 3 files on your computer:
 
 Since we're making a mod for MW2 in this chapter, I'm going to use the MW2 TU9 XEX for the target game, the MW2 Alpha 482 XEX for the debug XEX, and it's associated PDB. The [Alpha Archive website](http://alphaarchive.net/) is a fantastic resource to find debug builds/pre-alpha versions of games that were never released to the public. For the Call of Duty franchise specifically, another good resource is [this page](https://archive.org/download/ProtoWarehouseCoD) from the [Internet Archive website](https://archive.org/).
 
+## Something special about the Xbox 360
+XEX files are loaded in memory exactly at their base address, which means it's very easy to find function addresses and other things. Let's say a function is located at `0x82C00000` in an XEX file when you open it in IDA, you know for sure it will be located at `0x82C00000` in memory when the game is running. More modern systems load binaries at random locations in memory precisely not to allow you to simply disassemble an executable and find function addresses (which is exactly what we're doing). It's still possible to find function addresses on those systems, it's just a little trickier.
+
 ## Opening the XEX files in IDA
 
 - Open IDA and drag the game's XEX that you're targetting (the retail version) and wait until it fully loads (`AU: idle` in the bottom left corner). In my case it's `default_mp.xex` from my MW2 TU9 folder.
