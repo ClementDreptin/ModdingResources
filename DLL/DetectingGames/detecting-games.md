@@ -110,3 +110,7 @@ No thread clean up is done here, it should be done but I don't know how to do it
 <br/>
 
 **Note:** The code example shown in this page is available [here](detecting-games.cpp)
+
+<br/><br/>
+
+&rarr; [Next: Finding game functions](../finding-functions.md)
