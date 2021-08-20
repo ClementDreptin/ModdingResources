@@ -147,7 +147,8 @@ __declspec(naked) VOID GameFunctionStub(INT param1, INT param2)
 
 VOID GameFunctionHook(INT param1, INT param2)
 {
-    GameFunctionStub(param1, param2); // We call the initial function to keep the original behavior intact
+    // We call the initial function to keep the original behavior intact
+    GameFunctionStub(param1, param2);
 
     DbgPrint("GameFunction hooked!\n");
 }
@@ -160,3 +161,65 @@ VOID Init()
 }
 ```
 We have successfully hooked a function! Now, every time `GameFunction` gets called it will execute its original code then print "GameFunction hooked!" in the console.
+
+## Real world example
+MW2 has a function called `SV_ExecuteClientCommand` that monitors button inputs. Hooking it is going to allow us to know when the user presses or releases a button. We are just going to print the command passed to the function in the killfeed, it's up to you to imagine what you can do with it!
+
+First, we need to create our stub and hook functions:
+```C++
+__declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+{
+    __asm
+    {
+        li r3, 1
+    }
+}
+
+VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+{
+    // Calling the original SV_ExecuteClientCommand function
+    SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
+}
+```
+At the moment, we only call the original function in the hook so nothing new is happening. We are going to use the `SV_GameSendServerCommand` function that we found in the previous section to print the command passed to `SV_ExecuteClientCommand` in the killfeed.
+```C++
+VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+{
+    // Calling the original SV_ExecuteClientCommand function
+    SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
+
+    // Printing the command in the killfeed
+    std::string command = "f \"";
+    command += s;
+    command += "\"";
+    SV_GameSendServerCommand(-1, 0, command.c_str());
+}
+```
+Now we need to create a function that sets up the hook:
+```C++
+VOID InitMW2()
+{
+    // Waiting a little bit for the game to be fully loaded in memory
+    Sleep(200);
+
+    const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+
+    // Hooking SV_ExecuteClientCommand
+    HookFunctionStart((PDWORD)SV_ExecuteClientCommandAddr, (PDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
+}
+```
+The last thing to do is calling this function when MW2 is launched (in the switch statement of `MonitorTitleId`):
+```C++
+switch (newTitle)
+{
+    case MW2_TITLE_ID:
+        InitMW2();
+        break;
+}
+```
+
+You can now get on MW2 with your DLL loaded, press buttons while being in a game and you should see the commands in the killfeed.
+
+<br/>
+
+**Note:** The code example shown in this page is available [here](hooking-functions.cpp).
