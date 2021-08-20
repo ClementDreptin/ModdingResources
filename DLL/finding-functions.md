@@ -16,11 +16,11 @@ XEX files are loaded in memory exactly at their base address, which means it's v
 
 - Open IDA and drag the game's XEX that you're targetting (the retail version) and wait until it fully loads (`AU: idle` in the bottom left corner). In my case it's `default_mp.xex` from my MW2 TU9 folder.
 - Open another instance of IDA and drag the game's XEX in its debug version and wait until it fully loads. In my case it's `default_mp.xex` from my MW2 Alpha 482 folder.
-- Load the PDB file in the IDA instance with the debug version. To do so, go to `File > Load file > PDB file...`. In `Input file`, select the path to where the PDB is on your computer. In `Address`, type `0x82000000`, this is the base address of every Xbox 360 title. Uncheck `Types only` the click `Ok`. You are most likely going to get a warning message and an error message, just don't worry about them and click `Ok` on both.
+- Load the PDB file in the IDA instance with the debug version. To do so, go to `File > Load file > PDB file...`. In `Input file`, select the path to where the PDB is on your computer. In `Address`, type `0x82000000`, this is the base address of every Xbox 360 title. Uncheck `Types only` then click `OK`. You are most likely going to get a warning message and an error message, just don't worry about them and click `OK` on both.
 
 After loading the PDB file, your functions window on the left should have function names instead of `sub_<start_address>`, just like this:
 
-<img src="../Resources/Screenshots/ida-functions-window.png" alt="IDA functions window">
+<img src="./Images/ida-functions-window.png" alt="IDA functions window">
 
 ## Finding a function
 We are going to look for `SV_GameSendServerCommand`, which allows you, among many other things to print a custom text in the killfeed.
@@ -61,15 +61,15 @@ Now the strategy is to find some bytes from the function in the debug version an
 
 Considering those pieces of advice I gave in the paragraph above, you could think that the line `ori r8, r10, 0x7F80` is a pretty good candidate, it doesn't contain any address and has a `0x7F80` constant that looks not so common. Let's try! Place cursor in this line by clicking on it, now go to the `Hex View-1` tab to see that actual bytes of this instruction in hexadecimal, it should look like this:
 
-<img src="../Resources/Screenshots/ida-hex-view.png" alt="IDA Hex View">
+<img src="./Images/ida-hex-view.png" alt="IDA Hex View">
 
 As you can see, the bytes of the instruction your cursor is on are highlighted. A PowerPC instruction is always 4-bytes long and each byte is represented with 2 symbols in hexadecimal, so an instruction is always 8-symbols long. In our case `81 48 7F 80`. Now select those bytes with your mouse and hit `Ctrl` + `C` to copy them. Open your other instance of IDA with the retail version and hit `Alt` + `B` to make a binary search, paste the bytes in the text input and make sure all the options are the same as the ones in the screenshot below:
 
-<img src="../Resources/Screenshots/ida-binary-search.png" alt="IDA Binary Search">
+<img src="./Images/ida-binary-search.png" alt="IDA Binary Search">
 
-Once your bytes copied and options set, click `Ok`. A new tab called `Occurrences of binary` should open itself with the results of your search.
+Once your bytes are copied and options are set, click `OK`. A new tab called `Occurrences of binary` should open itself with the results of your search.
 
-<img src="../Resources/Screenshots/ida-binary-search-results.png" alt="IDA Binary Search results">
+<img src="./Images/ida-binary-search-results.png" alt="IDA Binary Search results">
 
 This is a bad result, what we searched turned out to be more common than we thought and we got a lot of results (26 here), we could go through all of them and see which one is actually `SV_GameSendServerCommand` but that would take a lot of time, and we're not even sure `SV_GameSendServerCommand` is among the results. I purposely made you search something that gives you a bad to result to show you that it's not always successful and what do to whenever that happens.
 

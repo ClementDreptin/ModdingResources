@@ -6,7 +6,7 @@ Dashlaunch is able to load up to 5 dynamic libraries (plugins) on start-up. We a
 ## Project setup
 Open Visual Studio and create a new Xbox 360 project.
 
-<img src="../Resources/Screenshots/vs-create-project.png" alt="Visual Studio Xbox 360 Project"/>
+<img src="../Prerequisites/Images/vs-create-project.png" alt="Visual Studio Xbox 360 Project"/>
 
 On the next prompt, click `Next` then click `Finish`.
 
@@ -109,7 +109,7 @@ Now reboot your console to apply the settings.
 
 The result should look like this:
 
-<img src="../Resources/Screenshots/xnotify.png" alt="XNotify"/>
+<img src="./Images/xnotify.png" alt="XNotify"/>
 
 <br/>
 
