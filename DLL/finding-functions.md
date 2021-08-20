@@ -63,7 +63,7 @@ Considering those pieces of advice I gave in the paragraph above, you could thin
 
 <img src="./Images/ida-hex-view.png" alt="IDA Hex View">
 
-As you can see, the bytes of the instruction your cursor is on are highlighted. A PowerPC instruction is always 4-bytes long and each byte is represented with 2 symbols in hexadecimal, so an instruction is always 8-symbols long. In our case `81 48 7F 80`. Now select those bytes with your mouse and hit `Ctrl` + `C` to copy them. Open your other instance of IDA with the retail version and hit `Alt` + `B` to make a binary search, paste the bytes in the text input and make sure all the options are the same as the ones in the screenshot below:
+As you can see, the bytes of the instruction your cursor is on are highlighted. A PowerPC instruction is always 4-bytes long and each byte is represented with 2 symbols in hexadecimal, so an instruction is always 8-symbols long. In our case `61 48 7F 80`. Now select those bytes with your mouse and hit `Ctrl` + `C` to copy them. Open your other instance of IDA with the retail version and hit `Alt` + `B` to make a binary search, paste the bytes in the text input and make sure all the options are the same as the ones in the screenshot below:
 
 <img src="./Images/ida-binary-search.png" alt="IDA Binary Search">
 
@@ -74,14 +74,14 @@ Once your bytes are copied and options are set, click `OK`. A new tab called `Oc
 This is a bad result, what we searched turned out to be more common than we thought and we got a lot of results (26 here), we could go through all of them and see which one is actually `SV_GameSendServerCommand` but that would take a lot of time, and we're not even sure `SV_GameSendServerCommand` is among the results. I purposely made you search something that gives you a bad to result to show you that it's not always successful and what do to whenever that happens.
 
 Since we got a bad a result, we need to find something more specific that will reduce the amount of results and help us find the function we are looking for.
-Go back to the IDA instance with the debug version and place your cursor on the first instruction (`mr r6, r5`), now go to the hex view but select 2 instructions this time (so 8 bytes, which is 8 symbols), `7C A6 2B 78 2F 03 FF FF` in our case which is the hexadecimal representation of
+Go back to the IDA instance with the debug version and place your cursor on the first instruction (`mr r6, r5`), now go to the hex view but select 2 instructions this time (so 8 bytes, which is 16 symbols), `7C A6 2B 78 2F 03 FF FF` in our case which is the hexadecimal representation of
 ```asm
 mr        r6, r5
 cmpwi     cr6, r3, -1
 ```
 Go to your other IDA instance and make a binary search of those bytes. Now only one result appears, that's a good sign. Double click on the result to get to where that result is located and bingo, this function looks exactly like the one from the debug version. The function names are just replaced with `sub_<addr>` and the variable names with `<type>_<addr>` because they're not resolved since we don't have a PDB for this version.
 
-The start of the function is like so
+The start of the function is like so:
 ```asm
 sub_822548D8:
 
