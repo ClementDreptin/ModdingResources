@@ -96,3 +96,7 @@ Our function pointer looks like this:
 ```C++
 VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
 ```
+
+<br/><br/>
+
+&rarr; [Next: Hooking functions](hooking-functions.md)

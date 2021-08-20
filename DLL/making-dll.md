@@ -3,3 +3,4 @@ Being able to display a text in a notification is cool and all but it's not that
 
 1. [Detecting games](DetectingGames/detecting-games.md)  
 2. [Finding game functions](finding-functions.md)  
+3. [Hooking functions](hooking-functions.md)  
