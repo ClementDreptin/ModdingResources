@@ -11,7 +11,10 @@ We need to hook functions to be notified on certain events. The most common scen
 ## Utility functions
 **Disclaimer:** I'm not an expert on the subject, I understand the concept but I don't master it enough to write my own functions. In my projects I use the ones from [The Tesseract on Xbox 360 for Modern Warfare 2](https://github.com/rheard/The-Tesseract-on-Xbox-360-for-Modern-Warfare-2) made by CraigChrist. You can tell that he has the assembly in mind when he writes C++ so his code is usually a little tricky to read. I gathered the useful functions for hooking and simplified them a little bit, I won't walk you through them because I don't understand everything they do:
 ```C++
-VOID PatchInJump(PDWORD address, DWORD destination, BOOL linked)
+// Forgotten PPC intrinsic
+#define __isync() __emit(0x4C00012C)
+
+VOID PatchInJump(LPDWORD address, DWORD destination, BOOL linked)
 {
     DWORD writeBuffer;
 
@@ -38,7 +41,7 @@ VOID PatchInJump(PDWORD address, DWORD destination, BOOL linked)
     __isync();
 }
 
-VOID __declspec(naked) GLPR_FUN()
+VOID __declspec(naked) GLPR()
 {
     __asm
     {
@@ -65,11 +68,11 @@ VOID __declspec(naked) GLPR_FUN()
     }
 }
 
-DWORD RelinkGPLR(INT offset, PDWORD saveStubAddr, PDWORD orgAddr)
+DWORD RelinkGPLR(INT offset, LPDWORD saveStubAddr, LPDWORD orgAddr)
 {
     DWORD inst = 0, repl;
     INT i;
-    PDWORD saver = (PDWORD)GLPR_FUN;
+    LPDWORD saver = (LPDWORD)GLPR;
 
     if (offset & 0x2000000)
         offset = offset | 0xFC000000;
@@ -88,7 +91,7 @@ DWORD RelinkGPLR(INT offset, PDWORD saveStubAddr, PDWORD orgAddr)
     return inst;
 }
 
-VOID HookFunctionStart(PDWORD address, PDWORD saveStub, DWORD destination)
+VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination)
 {
     if (saveStub != NULL && address != NULL)
     {
@@ -139,9 +142,16 @@ We can write a hook like so:
 ```C++
 __declspec(naked) VOID GameFunctionStub(INT param1, INT param2)
 {
+    // The stub needs to, at least, contain 7 instructions
     __asm
     {
-        li r3, 1 // dummy instruction
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
     }
 }
 
@@ -155,9 +165,9 @@ VOID GameFunctionHook(INT param1, INT param2)
 
 VOID Init()
 {
-    DWORD gameFunctionAddr = 0x82345678;
+    const DWORD gameFunctionAddr = 0x82345678;
 
-    HookFunctionStart((PDWORD)gameFunctionAddr, (PDWORD)GameFunctionStub, (DWORD)GameFunctionHook);
+    HookFunctionStart((LPDWORD)gameFunctionAddr, (LPDWORD)GameFunctionStub, (DWORD)GameFunctionHook);
 }
 ```
 We have successfully hooked a function! Now, every time `GameFunction` gets called it will execute its original code then print "GameFunction hooked!" in the console.
@@ -169,9 +179,16 @@ First, we need to create our stub and hook functions:
 ```C++
 __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
+    // The stub needs to, at least, contain 7 instructions
     __asm
     {
-        li r3, 1
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
     }
 }
 
@@ -205,7 +222,7 @@ VOID InitMW2()
     const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
-    HookFunctionStart((PDWORD)SV_ExecuteClientCommandAddr, (PDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
+    HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
 }
 ```
 The last thing to do is calling this function when MW2 is launched (in the switch statement of `MonitorTitleId`):
