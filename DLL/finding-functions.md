@@ -99,4 +99,4 @@ VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*
 
 <br/><br/>
 
-&rarr; [Next: Hooking functions](hooking-functions.md)
+&rarr; [Next: Hooking functions](HookingFunctions/hooking-functions.md)

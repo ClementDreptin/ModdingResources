@@ -18,4 +18,4 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
 4. [Making a real DLL](DLL/making-dll.md)  
     4.1. [Detecting games](DLL/DetectingGames/detecting-games.md)  
     4.2. [Finding game functions](DLL/finding-functions.md)  
-    4.3. [Hooking functions](DLL/hooking-functions.md)  
+    4.3. [Hooking functions](DLL/HookingFunctions/hooking-functions.md)  
