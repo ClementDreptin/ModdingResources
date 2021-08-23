@@ -175,6 +175,8 @@ We have successfully hooked a function! Now, every time `GameFunction` gets call
 ## Real world example
 MW2 has a function called `SV_ExecuteClientCommand` that monitors button inputs. Hooking it is going to allow us to know when the user presses or releases a button. We are just going to print the command passed to the function in the killfeed, it's up to you to imagine what you can do with it!
 
+**Note**: Commands passed to `SV_ExecuteClientCommand` are not always explicit strings. For button events, the string has the following format: `n <number>`. There are two events per button, a button pressed event and a button released, the event numbers for one button are consecutive. For example, the dpad left pressed event is `n 19` and the dpad left released event is `n 20`. A list of macros giving a meaningful name to a few buttons is available in the [source code of my personal DLL](https://github.com/ClementDreptin/Hayzen/blob/master/Hayzen/src/Games/MW2/Events.h).
+
 First, we need to create our stub and hook functions:
 ```C++
 __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
