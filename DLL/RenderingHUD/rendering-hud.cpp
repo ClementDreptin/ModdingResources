@@ -142,8 +142,127 @@ VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination)
     }
 }
 
-// Function we found in the previous section
-VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
+// HUD API structs and enums
+enum he_type_t : INT
+{
+    HE_TYPE_FREE,
+    HE_TYPE_TEXT,
+    HE_TYPE_VALUE,
+    HE_TYPE_PLAYERNAME,
+    HE_TYPE_MATERIAL,
+    HE_TYPE_MAPNAME,
+    HE_TYPE_GAMETYPE,
+    HE_TYPE_TIMER_DOWN,
+    HE_TYPE_TIMER_UP,
+    HE_TYPE_TIMER_STATIC,
+    HE_TYPE_TENTHS_TIMER_DOWN,
+    HE_TYPE_TENTHS_TIMER_UP,
+    HE_TYPE_CLOCK_DOWN,
+    HE_TYPE_CLOCK_UP,
+    HE_TYPE_WAYPOINT,
+    HE_TYPE_COUNT,
+};
+
+typedef enum align_t : INT
+{
+    ALIGN_TOP_LEFT = 0,
+    ALIGN_MIDDLE_LEFT = 1,
+    ALIGN_BOTTOM_LEFT = 2,
+    ALIGN_TOP_MIDDLE = 4,
+    ALIGN_MIDDLE_MIDDLE = 5,
+    ALIGN_BOTTOM_MIDDLE = 6,
+    ALIGN_TOP_RIGHT = 8,
+    ALIGN_MIDDLE_RIGHT = 9,
+    ALIGN_BOTTOM_RIGHT = 10
+};
+
+struct hudelem_color_t
+{
+    BYTE r;
+    BYTE g;
+    BYTE b;
+    BYTE a;
+};
+
+struct hudelem_s
+{
+    he_type_t type;
+    FLOAT y;
+    FLOAT x;
+    FLOAT z;
+    INT targetEntNum;
+    FLOAT fontScale;
+    FLOAT fromFontScale;
+    INT fontScaleStartTime;
+    INT fontScaleTime;
+    INT label;
+    INT font;
+    align_t alignOrg;
+    align_t alignScreen;
+    hudelem_color_t color;
+    hudelem_color_t fromColor;
+    INT fadeStartTime;
+    INT fadeTime;
+    INT height;
+    INT width;
+    INT materialIndex;
+    INT fromHeight;
+    INT fromWidth;
+    INT scaleStartTime;
+    INT scaleTime;
+    FLOAT fromY;
+    FLOAT fromX;
+    INT fromAlignOrg;
+    INT fromAlignScreen;
+    INT moveStartTime;
+    INT moveTime;
+    FLOAT value;
+    INT time;
+    INT duration;
+    INT text;
+    FLOAT sort;
+    hudelem_color_t glowColor;
+    INT fxBirthTime;
+    INT fxLetterTime;
+    INT fxDecayStartTime;
+    INT fxDecayDuration;
+    INT soundID;
+    INT flags;
+};
+
+struct game_hudelem_s
+{
+    hudelem_s elem;
+    INT clientNum;
+    INT teamNum;
+    INT archived;
+};
+
+// HUD API functions
+game_hudelem_s* (*HudElem_Alloc)(INT clientNum, INT teamNum) = (game_hudelem_s*(*)(INT, INT))0x821DF928;
+
+INT (*G_MaterialIndex)(LPCSTR name) = (INT(*)(LPCSTR))0x8220C960;
+
+
+// Rendering API struct
+struct Font_s
+{
+    INT fontName;
+    INT pixelHeight;
+    INT glyphCount;
+    INT material;
+    INT glowMaterial;
+    INT glyphs;
+};
+
+// Rendering API functions
+VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
+    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x823BAC18;
+
+Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT))0x823B6D58;
+
+LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x823B6928;
+
 
 __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
@@ -160,16 +279,41 @@ __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT cli
     }
 }
 
+game_hudelem_s* hudElem = nullptr;
+
 VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
-    // Printing the command in the killfeed
-    std::string command = "f \"";
-    command += s;
-    command += "\"";
-    SV_GameSendServerCommand(-1, 0, command.c_str());
+    // Checking if dpad left is pressed
+    if (!strcmp(s, "n 19")
+    {
+        // Creating the HudElem only the first time we press the button
+        if (!hudElem)
+        {
+            hudElem = HudElem_Alloc(0, 0);
+            hudElem->elem.x = 441.0f;
+            hudElem->elem.y = 5.0f;
+            hudElem->elem.width = 300;
+            hudElem->elem.height = 470;
+            hudElem->elem.color.r = 0;
+            hudElem->elem.color.g = 0;
+            hudElem->elem.color.b = 0;
+            hudElem->elem.color.a = 0;
+            hudElem->elem.type = HE_TYPE_MATERIAL;
+            hudElem->elem.alignOrg = ALIGN_TOP_LEFT;
+            hudElem->elem.alignScreen = ALIGN_TOP_LEFT;
+            hudElem->elem.sort = 0.0f;
+            hudElem->elem.materialIndex = G_MaterialIndex("white");
+        }
+
+        // Toggle HudElem's visibility
+        if (!hudElem->elem.color.a)
+            hudElem->elem.color.a = 255;
+        else
+            hudElem->elem.color.a = 0;
+    }
 }
 
 // Sets up the hook

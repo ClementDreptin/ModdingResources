@@ -19,3 +19,4 @@ Despite those limits, I learned some key concepts/skills that apply to any piece
     4.1. [Detecting games](DLL/DetectingGames/detecting-games.md)  
     4.2. [Finding game functions](DLL/finding-functions.md)  
     4.3. [Hooking functions](DLL/HookingFunctions/hooking-functions.md)  
+    4.4. [Rendering HUD](DLL/RenderingHUD/rendering-hud.md)  

@@ -6,7 +6,7 @@ Here's how the [Wikipedia page about hooking](https://en.wikipedia.org/wiki/Hook
 Put in a more concise way, hooking, and specifically function hooking in our case, is making a function from the game jump to one of our functions.
 
 ## Why?
-We need to hook functions to be notified on certain events. The most common scenario is button inputs, we want to know when a button is pressed and what button was pressed. You could argue that we don't need to hook a function for button inputs because the XDK already provides the `XInputGetState` function. The problem is that this function needs to be called in an update loop and our update loop is not specific to a game, it's global to our DLL, adding extra checks in this loop to see what game is currently running would slow it down and it becomes messy if you want to listen for different button inputs on each game. Another thing is that the game already did all the work of creating an event system around button inputs, so why reinventing the wheel?
+We need to hook functions to be notified on certain events. The most common scenario is button inputs, we want to know when a button is pressed and what button was pressed. You could argue that we don't need to hook a function for button inputs because the XDK already provides us with the `XInputGetState` function. The problem is that this function needs to be called in an update loop and our update loop is not specific to a game, it's global to our DLL, adding extra checks in this loop to see what game is currently running would slow it down and it becomes messy if you want to listen for different button inputs on each game. Another thing is that the game already did all the work of creating an event system around button inputs, so why reinventing the wheel?
 
 ## Utility functions
 **Disclaimer:** I'm not an expert on the subject, I understand the concept but I don't master it enough to write my own functions. In my projects I use the ones from [The Tesseract on Xbox 360 for Modern Warfare 2](https://github.com/rheard/The-Tesseract-on-Xbox-360-for-Modern-Warfare-2) made by CraigChrist. You can tell that he has the assembly in mind when he writes C++ so his code is usually a little tricky to read. I gathered the useful functions for hooking and simplified them a little bit, I won't walk you through them because I don't understand everything they do:
@@ -242,3 +242,7 @@ You can now get on MW2 with your DLL loaded, press buttons while being in a game
 <br/>
 
 **Note:** The code example shown in this page is available [here](hooking-functions.cpp).
+
+<br/><br/>
+
+&rarr; [Next: Rendering HUD](../RenderingHUD/rendering-hud.md)
