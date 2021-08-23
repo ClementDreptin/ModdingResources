@@ -165,7 +165,7 @@ VOID GameFunctionHook(INT param1, INT param2)
 
 VOID Init()
 {
-    const DWORD gameFunctionAddr = 0x82345678;
+    CONST DWORD gameFunctionAddr = 0x82345678;
 
     HookFunctionStart((LPDWORD)gameFunctionAddr, (LPDWORD)GameFunctionStub, (DWORD)GameFunctionHook);
 }
@@ -219,7 +219,7 @@ VOID InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
     HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);

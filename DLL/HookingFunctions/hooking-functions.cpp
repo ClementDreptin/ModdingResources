@@ -3,7 +3,7 @@
 // Forgotten PPC intrinsic
 #define __isync() __emit(0x4C00012C)
 
-const DWORD MW2_TITLE_ID = 0x41560817;
+CONST DWORD MW2_TITLE_ID = 0x41560817;
 
 // Imports from the Xbox libraries
 extern "C" 
@@ -180,7 +180,7 @@ VOID InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
     HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
