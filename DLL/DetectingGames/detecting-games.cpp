@@ -9,7 +9,7 @@ DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
 }
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, PVOID contextData);
+typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, LPVOID contextData);
 XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
 
 // Enum for game title IDs
@@ -25,10 +25,10 @@ extern "C"
     DWORD XamGetCurrentTitleId();
 
     DWORD __stdcall ExCreateThread(
-        PHANDLE pHandle,
+        LPHANDLE pHandle,
         DWORD dwStackSize,
         LPDWORD lpThreadId,
-        PVOID apiThreadStartup,
+        LPVOID apiThreadStartup,
         LPTHREAD_START_ROUTINE lpStartAddress,
         LPVOID lpParameters,
         DWORD dwCreationFlagsMod

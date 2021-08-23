@@ -11,10 +11,10 @@ extern "C"
     DWORD XamGetCurrentTitleId();
 
     DWORD __stdcall ExCreateThread(
-        PHANDLE pHandle,
+        LPHANDLE pHandle,
         DWORD dwStackSize,
         LPDWORD lpThreadId,
-        PVOID apiThreadStartup,
+        LPVOID apiThreadStartup,
         LPTHREAD_START_ROUTINE lpStartAddress,
         LPVOID lpParameters,
         DWORD dwCreationFlagsMod
