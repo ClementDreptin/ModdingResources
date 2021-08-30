@@ -243,6 +243,8 @@ game_hudelem_s* (*HudElem_Alloc)(INT clientNum, INT teamNum) = (game_hudelem_s*(
 
 INT (*G_MaterialIndex)(LPCSTR name) = (INT(*)(LPCSTR))0x8220C960;
 
+INT (*G_LocalizedStringIndex)(LPCSTR string) = (INT(*)(LPCSTR))0x8220C7A0;
+
 
 // Rendering API structs
 struct Color
@@ -318,7 +320,8 @@ __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT cli
     }
 }
 
-game_hudelem_s* hudElem = nullptr;
+game_hudelem_s* rectangleElem = nullptr;
+game_hudelem_s* textElem = nullptr;
 
 VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
@@ -328,30 +331,48 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     // Checking if dpad left is pressed
     if (!strcmp(s, "n 19")
     {
-        // Creating the HudElem only the first time we press the button
-        if (!hudElem)
+        // Creating the rectangle only the first time we press the button
+        if (!rectangleElem)
         {
-            hudElem = HudElem_Alloc(0, 0);
-            hudElem->elem.x = 441.0f;
-            hudElem->elem.y = 5.0f;
-            hudElem->elem.width = 300;
-            hudElem->elem.height = 470;
-            hudElem->elem.color.r = 0;
-            hudElem->elem.color.g = 0;
-            hudElem->elem.color.b = 0;
-            hudElem->elem.color.a = 0;
-            hudElem->elem.type = HE_TYPE_MATERIAL;
-            hudElem->elem.alignOrg = ALIGN_TOP_LEFT;
-            hudElem->elem.alignScreen = ALIGN_TOP_LEFT;
-            hudElem->elem.sort = 0.0f;
-            hudElem->elem.materialIndex = G_MaterialIndex("white");
+            rectangleElem = HudElem_Alloc(0, 0);
+            rectangleElem->elem.x = 441.0f;
+            rectangleElem->elem.y = 5.0f;
+            rectangleElem->elem.width = 300;
+            rectangleElem->elem.height = 470;
+            rectangleElem->elem.color.r = 0;
+            rectangleElem->elem.color.g = 0;
+            rectangleElem->elem.color.b = 0;
+            rectangleElem->elem.color.a = 0;
+            rectangleElem->elem.type = HE_TYPE_MATERIAL;
+            rectangleElem->elem.alignOrg = ALIGN_TOP_LEFT;
+            rectangleElem->elem.alignScreen = ALIGN_TOP_LEFT;
+            rectangleElem->elem.sort = 0.0f;
+            rectangleElem->elem.materialIndex = G_MaterialIndex("white");
+        }
+
+        // Creating the text only the first time we press the button
+        if (!textElem)
+        {
+            textElem->elem.x = 100.0f;
+            textElem->elem.y = 100.0f;
+            textElem->elem.color.r = 255;
+            textElem->elem.color.g = 255;
+            textElem->elem.color.b = 255;
+            textElem->elem.color.a = 0;
+            textElem->elem.type = HE_TYPE_TEXT;
+            textElem->elem.alignOrg = ALIGN_BOTTOM_LEFT;
+            textElem->elem.alignScreen = ALIGN_TOP_LEFT;
+            textElem->elem.font = 4;
+            textElem->elem.sort = 1.0f;
+            textElem->elem.fontScale = 2.0f;
+            textElem->elem.text = G_LocalizedStringIndex("HUD API Text");
         }
 
         // Toggle HudElem's visibility
-        if (!hudElem->elem.color.a)
-            hudElem->elem.color.a = 255;
+        if (!rectangleElem->elem.color.a)
+            rectangleElem->elem.color.a = 255;
         else
-            hudElem->elem.color.a = 0;
+            rectangleElem->elem.color.a = 0;
 
         // Toggle the HUD element's visibility
         if (!black.a)
