@@ -244,7 +244,15 @@ game_hudelem_s* (*HudElem_Alloc)(INT clientNum, INT teamNum) = (game_hudelem_s*(
 INT (*G_MaterialIndex)(LPCSTR name) = (INT(*)(LPCSTR))0x8220C960;
 
 
-// Rendering API struct
+// Rendering API structs
+struct Color
+{
+    FLOAT r;
+    FLOAT g;
+    FLOAT b;
+    FLOAT a;
+};
+
 struct Font_s
 {
     INT fontName;
@@ -263,6 +271,37 @@ Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT
 
 LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x823B6928;
 
+__declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
+{
+    // The stub needs to, at least, contain 7 instructions
+    __asm
+    {
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+    }
+}
+
+LPVOID materialHandle = nullptr;
+Color black = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
+{
+    // Calling the original SCR_DrawScreenField function
+    SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
+
+    // Register the white material the first time we draw
+    if (!materialHandle)
+        materialHandle = Material_RegisterHandle("white", 0);
+
+    // Rendering the HUD element only if the alpha channel is positive
+    if (black.a > 0.0f)
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, materialHandle);
+}
 
 __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
@@ -275,7 +314,7 @@ __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT cli
         nop
         nop
         nop
-        nop
+        li r3, 1
     }
 }
 
@@ -313,6 +352,12 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
             hudElem->elem.color.a = 255;
         else
             hudElem->elem.color.a = 0;
+
+        // Toggle the HUD element's visibility
+        if (!black.a)
+            black.a = 1.0f;
+        else
+            black.a = 0.0f;
     }
 }
 
