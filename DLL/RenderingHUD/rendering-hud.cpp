@@ -385,7 +385,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
             textElem->elem.text = G_LocalizedStringIndex("HUD API Text");
         }
 
-        // Toggle the visibility of the rectangle and the text from the HUD API 
+        // Toggle the visibility of the rectangle and the text from the HUD API
         if (!rectangleElem->elem.color.a)
         {
             rectangleElem->elem.color.a = 255;
@@ -418,9 +418,11 @@ VOID InitMW2()
     Sleep(200);
 
     CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    CONST DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
 
     // Hooking SV_ExecuteClientCommand
     HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
+    HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
 }
 
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
