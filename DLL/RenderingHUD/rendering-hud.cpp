@@ -269,6 +269,9 @@ struct Font_s
 VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
     (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x823BAC18;
 
+VOID (*R_AddCmdDrawText)(LPCSTR text, INT maxChars, Font_s* font, FLOAT x, FLOAT y, FLOAT xScale, FLOAT yScale, FLOAT rotation, CONST PFLOAT color, INT style) =
+    (VOID(*)(LPCSTR , INT, Font_s* , FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, INT))0x823BB4D8;
+
 Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT))0x823B6D58;
 
 LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x823B6928;
@@ -289,7 +292,9 @@ __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT ref
 }
 
 LPVOID materialHandle = nullptr;
-Color black = { 1.0f, 1.0f, 1.0f, 1.0f };
+Font_s* normalFont = nullptr;
+Color black = { 0.0f, 0.0f, 0.0f, 1.0f };
+Color white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 {
@@ -300,9 +305,20 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
     if (!materialHandle)
         materialHandle = Material_RegisterHandle("white", 0);
 
-    // Rendering the HUD element only if the alpha channel is positive
+    // Register the normal font the first time we draw
+    if (!normalFont)
+        normalFont = R_RegisterFont("fonts/normalFont", 0);
+
+    // Rendering the rectangle only if the alpha channel is positive
     if (black.a > 0.0f)
         R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, materialHandle);
+
+    // Rendering the text only if the alpha channel is positive
+    if (white.a > 0.0f)
+    {
+        const char* text = "Rendering API Text";
+        R_AddCmdDrawText(text, strlen(text), normalFont, 100.0f, 100.0f, 1.0f, 1.0f, 0.0f, (PFLOAT)&white, 0);
+    }
 }
 
 __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
@@ -353,6 +369,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
         // Creating the text only the first time we press the button
         if (!textElem)
         {
+            textElem = HudElem_Alloc(0, 0);
             textElem->elem.x = 100.0f;
             textElem->elem.y = 100.0f;
             textElem->elem.color.r = 255;
@@ -368,17 +385,29 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
             textElem->elem.text = G_LocalizedStringIndex("HUD API Text");
         }
 
-        // Toggle HudElem's visibility
+        // Toggle the visibility of the rectangle and the text from the HUD API 
         if (!rectangleElem->elem.color.a)
+        {
             rectangleElem->elem.color.a = 255;
+            textElem->elem.color.a = 255;
+        }
         else
+        {
             rectangleElem->elem.color.a = 0;
+            textElem->elem.color.a = 0;
+        }
 
-        // Toggle the HUD element's visibility
+        // Toggle the visibility of the rectangle and the text from the rendering API
         if (!black.a)
+        {
             black.a = 1.0f;
+            white.a = 1.0f;
+        }
         else
+        {
             black.a = 0.0f;
+            white.a = 0.0f;
+        }
     }
 }
 
