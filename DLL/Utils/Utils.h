@@ -1,9 +1,11 @@
+#pragma once
+
 // Gets the address of the function within a module by its ordinal
 DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal);
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
 typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, LPVOID contextData);
-XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
+extern XNOTIFYQUEUEUI XNotifyQueueUI;
 
 // Enum for game title IDs
 enum Games : DWORD

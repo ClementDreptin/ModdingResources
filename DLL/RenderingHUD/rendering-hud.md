@@ -20,7 +20,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
-    if (!strcmp(s, "n 19")
+    if (!strcmp(s, "n 19"))
     {
         // do stuff
     }
@@ -143,7 +143,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
-    if (!strcmp(s, "n 19")
+    if (!strcmp(s, "n 19"))
     {
         // Creating the rectangle only the first time we press the button
         if (!rectangleElem)
@@ -188,9 +188,9 @@ struct Color
 };
 
 VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
-    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x823BAC18;
+    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x8234F9B8;
 
-LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x823B6928;
+LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
 
 __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
 {
@@ -222,7 +222,7 @@ HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenField
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha cchannel of the color used.
 ```C++
 LPVOID materialHandle = nullptr;
-Color black = { 0.0f, 0.0f, 0.0f, 1.0f };
+Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 {
