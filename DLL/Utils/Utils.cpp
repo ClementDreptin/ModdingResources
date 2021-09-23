@@ -16,7 +16,7 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
     DWORD currentTitle;
 
-    while (TRUE)
+    while (Running)
     {
         DWORD newTitle = XamGetCurrentTitleId();
 
