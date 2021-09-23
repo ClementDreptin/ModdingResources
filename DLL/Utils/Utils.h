@@ -28,6 +28,9 @@ extern "C"
     );
 }
 
+// Maintains the main loop state
+BOOL Running = TRUE;
+
 // Infinitely checks the current game running
 DWORD MonitorTitleId(LPVOID lpThreadParameter);
 

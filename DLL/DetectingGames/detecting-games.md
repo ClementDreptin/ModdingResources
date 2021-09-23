@@ -59,11 +59,13 @@ VOID MonitorTitleId()
 We can't just call `MonitorTitleId` when `DllMain` receives the `DLL_PROCESS_ATTACH` reason because this will heavily slow down the main thread. That's why we need to run `MonitorTitleId` in a separate thread.
 By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `LPTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. That means we need the signature of our `MonitorTitleId` function to become:
 ```C++
+BOOL Running = TRUE;
+
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
     DWORD currentTitle;
 
-    while (true)
+    while (Running)
     {
         DWORD newTitle = XamGetCurrentTitleId();
 
@@ -98,6 +100,9 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
+            Running = FALSE;
+            // We give the system some time to clean up the thread before exiting
+            Sleep(250);
             break;
     }
     return TRUE;
@@ -105,7 +110,6 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 ```
 
 You might be wondering why we are using `ExCreateThread` instead of `CreateThread`, which is a function provided by Windows in a header file. The reason is that, in order to keep your thread running even when you switch games, you need to pass `2` in the `dwCreationFlagsMod` argument. Passing `2` to the `dwCreationFlags` argument of `CreateThread` does not keep your thread running when you switch games.
-No thread clean up is done here, it should be done but I don't know how to do it properly using the old Win32 API (cf. [The limits of loading/unload modules on demand](DevelopmentWorkflow/development-workflow.md#the-limits)). This is why you get a `Fatal Crash Intercepted` error when you try to unload your DLL while your thread is still running.
 
 <br/>
 
