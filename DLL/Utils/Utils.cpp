@@ -1,6 +1,6 @@
 #include "pch.h"
+#include "Utils.h"
 
-// Gets the address of the function within a module by its ordinal
 DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
 {
     HMODULE mHandle = GetModuleHandle(moduleName);
@@ -8,11 +8,15 @@ DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
     return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
 }
 
+XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
+
+VOID InitMW2();
+
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
     DWORD currentTitle;
 
-    while (true)
+    while (TRUE)
     {
         DWORD newTitle = XamGetCurrentTitleId();
 
@@ -26,7 +30,9 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
                 case MW2:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
+                    // Making sure we initialize MW2 only when the multiplayer XEX is running
+                    if (!strcmp((LPSTR)0x82001270, "multiplayer"))
+                        InitMW2();
                     break;
             }
         }

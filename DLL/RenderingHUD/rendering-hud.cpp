@@ -127,14 +127,17 @@ struct Font_s
 
 // Rendering API functions
 VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
-    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x823BAC18;
+    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x8234F9B8;
 
 VOID (*R_AddCmdDrawText)(LPCSTR text, INT maxChars, Font_s* font, FLOAT x, FLOAT y, FLOAT xScale, FLOAT yScale, FLOAT rotation, CONST PFLOAT color, INT style) =
-    (VOID(*)(LPCSTR , INT, Font_s* , FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, INT))0x823BB4D8;
+    (VOID(*)(LPCSTR , INT, Font_s* , FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, INT))0x82350278;
 
-Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT))0x823B6D58;
+Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT))0x8234DCB0;
 
-LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x823B6928;
+LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
+
+// Used to change some dvars
+VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
 
 __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
 {
@@ -153,8 +156,8 @@ __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT ref
 
 LPVOID materialHandle = nullptr;
 Font_s* normalFont = nullptr;
-Color black = { 0.0f, 0.0f, 0.0f, 1.0f };
-Color white = { 1.0f, 1.0f, 1.0f, 1.0f };
+Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
+Color white = { 1.0f, 1.0f, 1.0f, 0.0f };
 
 VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 {
@@ -177,7 +180,7 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
     if (white.a > 0.0f)
     {
         const char* text = "Rendering API Text";
-        R_AddCmdDrawText(text, strlen(text), normalFont, 100.0f, 100.0f, 1.0f, 1.0f, 0.0f, (PFLOAT)&white, 0);
+        R_AddCmdDrawText(text, strlen(text), normalFont, 90.0f, 375.0f, 1.0f, 1.0f, 0.0f, (PFLOAT)&white, 0);
     }
 }
 
@@ -205,11 +208,15 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
-    if (!strcmp(s, "n 19")
+    if (!strcmp(s, "n 19"))
     {
-        // Creating the rectangle only the first time we press the button
+        // Creating the rectangle and removing localization warnings only the first time we press the button
         if (!rectangleElem)
         {
+            // Removing UNLOCALIZED() around texts
+            SV_GameSendServerCommand(0, 0, "s loc_warnings \"0\"");
+            SV_GameSendServerCommand(0, 0, "s loc_warningsUI \"0\"");
+
             rectangleElem = HudElem_Alloc(0, 0);
             rectangleElem->elem.x = 441.0f;
             rectangleElem->elem.y = 5.0f;
@@ -230,14 +237,14 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
         if (!textElem)
         {
             textElem = HudElem_Alloc(0, 0);
-            textElem->elem.x = 100.0f;
-            textElem->elem.y = 100.0f;
+            textElem->elem.x = 441.0f + (300.0f / 2.0f) + (5.0f / 2.0f);
+            textElem->elem.y = 5.0f + (470.0f / 2.0f);
             textElem->elem.color.r = 255;
             textElem->elem.color.g = 255;
             textElem->elem.color.b = 255;
             textElem->elem.color.a = 0;
             textElem->elem.type = HE_TYPE_TEXT;
-            textElem->elem.alignOrg = ALIGN_BOTTOM_LEFT;
+            textElem->elem.alignOrg = ALIGN_MIDDLE_MIDDLE;
             textElem->elem.alignScreen = ALIGN_TOP_LEFT;
             textElem->elem.font = 4;
             textElem->elem.sort = 1.0f;
@@ -274,6 +281,8 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
 // Sets up the hook
 VOID InitMW2()
 {
+    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
+
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
@@ -283,30 +292,6 @@ VOID InitMW2()
     // Hooking SV_ExecuteClientCommand
     HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
     HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
-}
-
-DWORD MonitorTitleId(LPVOID lpThreadParameter)
-{
-    DWORD currentTitle;
-
-    while (true)
-    {
-        DWORD newTitle = XamGetCurrentTitleId();
-
-        if (newTitle != currentTitle)
-        {
-            currentTitle = newTitle;
-
-            switch (newTitle)
-            {
-                case MW2_TITLE_ID:
-                    InitMW2();
-                    break;
-            }
-        }
-    }
-
-    return 0;
 }
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
