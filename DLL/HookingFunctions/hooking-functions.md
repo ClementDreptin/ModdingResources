@@ -14,29 +14,29 @@ We need to hook functions to be notified on certain events. The most common scen
 // Forgotten PPC intrinsic
 #define __isync() __emit(0x4C00012C)
 
-VOID PatchInJump(LPDWORD address, DWORD destination, BOOL linked)
+VOID PatchInJump(LPDWORD lpdwAddress, DWORD dwDestination, BOOL bLinked)
 {
-    DWORD writeBuffer;
+    DWORD dwWriteBuffer;
 
-    if (destination & 0x8000)
-        writeBuffer = 0x3D600000 + (((destination >> 16) & 0xFFFF) + 1);
+    if (dwDestination & 0x8000)
+        dwWriteBuffer = 0x3D600000 + (((dwDestination >> 16) & 0xFFFF) + 1);
     else
-        writeBuffer = 0x3D600000 + ((destination >> 16) & 0xFFFF);
+        dwWriteBuffer = 0x3D600000 + ((dwDestination >> 16) & 0xFFFF);
 
-    address[0] = writeBuffer;
-    writeBuffer = 0x396B0000 + (destination & 0xFFFF);
-    address[1] = writeBuffer;
-    writeBuffer = 0x7D6903A6;
-    address[2] = writeBuffer;
+    lpdwAddress[0] = dwWriteBuffer;
+    dwWriteBuffer = 0x396B0000 + (dwDestination & 0xFFFF);
+    lpdwAddress[1] = dwWriteBuffer;
+    dwWriteBuffer = 0x7D6903A6;
+    lpdwAddress[2] = dwWriteBuffer;
 
-    if (linked)
-        writeBuffer = 0x4E800421;
+    if (bLinked)
+        dwWriteBuffer = 0x4E800421;
     else
-        writeBuffer = 0x4E800420;
+        dwWriteBuffer = 0x4E800420;
 
-    address[3] = writeBuffer;
+    lpdwAddress[3] = dwWriteBuffer;
 
-    __dcbst(0, address);
+    __dcbst(0, lpdwAddress);
     __sync();
     __isync();
 }
@@ -68,70 +68,68 @@ VOID __declspec(naked) GLPR()
     }
 }
 
-DWORD RelinkGPLR(INT offset, LPDWORD saveStubAddr, LPDWORD orgAddr)
+DWORD RelinkGPLR(INT nOffset, LPDWORD lpdwSaveStubAddr, LPDWORD lpdwOrgAddr)
 {
-    DWORD inst = 0, repl;
-    INT i;
-    LPDWORD saver = (LPDWORD)GLPR;
+    DWORD dwInst = 0, dwRepl;
+    LPDWORD lpdwSaver = (LPDWORD)GLPR;
 
-    if (offset & 0x2000000)
-        offset = offset | 0xFC000000;
+    if (nOffset & 0x2000000)
+        nOffset = nOffset | 0xFC000000;
 
-    repl = orgAddr[offset / 4];
+    dwRepl = lpdwOrgAddr[nOffset / 4];
 
-    for (i = 0; i < 20; i++)
+    for (INT i = 0; i < 20; i++)
     {
-        if (repl == saver[i])
+        if (dwRepl == lpdwSaver[i])
         {
-            INT newOffset = (INT)&saver[i] - (INT)saveStubAddr;
-            inst = 0x48000001 | (newOffset & 0x3FFFFFC);
+            INT newOffset = (INT)&lpdwSaver[i] - (INT)lpdwSaveStubAddr;
+            dwInst = 0x48000001 | (newOffset & 0x3FFFFFC);
         }
     }
 
-    return inst;
+    return dwInst;
 }
 
-VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination)
+VOID HookFunctionStart(LPDWORD lpdwAddress, LPDWORD lpdwSaveStub, DWORD dwDestination)
 {
-    if (saveStub != NULL && address != NULL)
+    if (lpdwSaveStub != NULL && lpdwAddress != NULL)
     {
-        INT i;
-        DWORD addrReloc = (DWORD)(&address[4]);
-        DWORD writeBuffer;
+        DWORD dwAddrReloc = (DWORD)(&lpdwAddress[4]);
+        DWORD dwWriteBuffer;
 
-        if (addrReloc & 0x8000)
-            writeBuffer = 0x3D600000 + (((addrReloc >> 16) & 0xFFFF) + 1);
+        if (dwAddrReloc & 0x8000)
+            dwWriteBuffer = 0x3D600000 + (((dwAddrReloc >> 16) & 0xFFFF) + 1);
         else
-            writeBuffer = 0x3D600000 + ((addrReloc >> 16) & 0xFFFF);
+            dwWriteBuffer = 0x3D600000 + ((dwAddrReloc >> 16) & 0xFFFF);
 
-        saveStub[0] = writeBuffer;
-        writeBuffer = 0x396B0000 + (addrReloc & 0xFFFF);
-        saveStub[1] = writeBuffer;
-        writeBuffer = 0x7D6903A6;
-        saveStub[2] = writeBuffer;
+        lpdwSaveStub[0] = dwWriteBuffer;
+        dwWriteBuffer = 0x396B0000 + (dwAddrReloc & 0xFFFF);
+        lpdwSaveStub[1] = dwWriteBuffer;
+        dwWriteBuffer = 0x7D6903A6;
+        lpdwSaveStub[2] = dwWriteBuffer;
     
-        for (i = 0; i < 4; i++)
+        for (INT i = 0; i < 4; i++)
         {
-            if ((address[i] & 0x48000003) == 0x48000001)
+            if ((lpdwAddress[i] & 0x48000003) == 0x48000001)
             {
-                writeBuffer = RelinkGPLR((address[i] &~ 0x48000003), &saveStub[i + 3], &address[i]);
-                saveStub[i + 3] = writeBuffer;
+                dwWriteBuffer = RelinkGPLR((lpdwAddress[i] &~ 0x48000003), &lpdwSaveStub[i + 3], &lpdwAddress[i]);
+                lpdwSaveStub[i + 3] = dwWriteBuffer;
             }
             else
             {
-                writeBuffer = address[i];
-                saveStub[i + 3] = writeBuffer;
+                dwWriteBuffer = lpdwAddress[i];
+                lpdwSaveStub[i + 3] = dwWriteBuffer;
             }
         }
 
-        writeBuffer = 0x4E800420;
-        saveStub[7] = writeBuffer;
+        dwWriteBuffer = 0x4E800420;
+        lpdwSaveStub[7] = dwWriteBuffer;
 
-        __dcbst(0, saveStub);
+        __dcbst(0, lpdwSaveStub);
         __sync();
         __isync();
 
-        PatchInJump(address, destination, FALSE);
+        PatchInJump(lpdwAddress, dwDestination, FALSE);
     }
 }
 ```
@@ -140,7 +138,7 @@ VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination)
 Every time we want to hook a function we need to create an empty function with the same signature that will hold the instructions of the original one. That way we can execute the code that was originally in the function so that the game still functions properly. This empty function is called a stub, it needs to be declared with `__declspec(naked)` to make sure we control every instruction that's in our function and that the compiler doesn't add any by itself. Thus, the empty function needs to be written in inlined assembly.
 We can write a hook like so:
 ```C++
-__declspec(naked) VOID GameFunctionStub(INT param1, INT param2)
+__declspec(naked) VOID GameFunctionStub(INT nParam1, INT nParam2)
 {
     // The stub needs to, at least, contain 7 instructions
     __asm
@@ -155,19 +153,19 @@ __declspec(naked) VOID GameFunctionStub(INT param1, INT param2)
     }
 }
 
-VOID GameFunctionHook(INT param1, INT param2)
+VOID GameFunctionHook(INT nParam1, INT nParam2)
 {
     // We call the initial function to keep the original behavior intact
-    GameFunctionStub(param1, param2);
+    GameFunctionStub(nParam1, nParam2);
 
     DbgPrint("GameFunction hooked!\n");
 }
 
 VOID Init()
 {
-    CONST DWORD gameFunctionAddr = 0x82345678;
+    CONST DWORD dwGameFunctionAddr = 0x82345678;
 
-    HookFunctionStart((LPDWORD)gameFunctionAddr, (LPDWORD)GameFunctionStub, (DWORD)GameFunctionHook);
+    HookFunctionStart((LPDWORD)dwGameFunctionAddr, (LPDWORD)GameFunctionStub, (DWORD)GameFunctionHook);
 }
 ```
 We have successfully hooked a function! Now, every time `GameFunction` gets called it will execute its original code then print "GameFunction hooked!" in the console.
@@ -208,10 +206,10 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Printing the command in the killfeed
-    std::string command = "f \"";
-    command += s;
-    command += "\"";
-    SV_GameSendServerCommand(-1, 0, command.c_str());
+    std::string strCommand = "f \"";
+    strCommand += s;
+    strCommand += "\"";
+    SV_GameSendServerCommand(-1, 0, strCommand.c_str());
 }
 ```
 Now we need to create a function that sets up the hook:
@@ -221,15 +219,15 @@ VOID InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    CONST DWORD dwSV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
-    HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
+    HookFunctionStart((LPDWORD)dwSV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
 }
 ```
 The last thing to do is calling this function when MW2 is launched (in the switch statement of `MonitorTitleId`):
 ```C++
-switch (newTitle)
+switch (dwNewTitle)
 {
     case MW2_TITLE_ID:
         InitMW2();

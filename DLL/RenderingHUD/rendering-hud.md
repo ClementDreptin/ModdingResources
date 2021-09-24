@@ -30,7 +30,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
 ### HUD API (high level)
 Before creating any HUD element we need to create a few function pointers and structs.
 ```C++
-enum he_type_t : INT
+enum he_type_t
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -50,7 +50,7 @@ enum he_type_t : INT
     HE_TYPE_COUNT,
 };
 
-typedef enum align_t : INT
+typedef enum align_t
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -135,7 +135,7 @@ The structs are pretty self explanatory so I won't walk you through them. The fu
 
 Now that we have everything we need, we can start creating our HUD elements! To do so, we just need to create a new element by calling `HudElem_Alloc` and filling the `hudelem_s`. We'll only create the element the first time we press the button then toggle its visibility by modifying the alpha channel of its color.
 ```C++
-game_hudelem_s* rectangleElem = nullptr;
+game_hudelem_s* pRectangleElem = nullptr;
 
 VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
 {
@@ -146,29 +146,29 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
     if (!strcmp(s, "n 19"))
     {
         // Creating the rectangle only the first time we press the button
-        if (!rectangleElem)
+        if (!pRectangleElem)
         {
-            rectangleElem = HudElem_Alloc(0, 0);
-            rectangleElem->elem.x = 441.0f;
-            rectangleElem->elem.y = 5.0f;
-            rectangleElem->elem.width = 300;
-            rectangleElem->elem.height = 470;
-            rectangleElem->elem.color.r = 0;
-            rectangleElem->elem.color.g = 0;
-            rectangleElem->elem.color.b = 0;
-            rectangleElem->elem.color.a = 0;
-            rectangleElem->elem.type = HE_TYPE_MATERIAL;
-            rectangleElem->elem.alignOrg = ALIGN_TOP_LEFT;
-            rectangleElem->elem.alignScreen = ALIGN_TOP_LEFT;
-            rectangleElem->elem.sort = 0.0f;
-            rectangleElem->elem.materialIndex = G_MaterialIndex("white");
+            pRectangleElem = HudElem_Alloc(0, 0);
+            pRectangleElem->elem.x = 441.0f;
+            pRectangleElem->elem.y = 5.0f;
+            pRectangleElem->elem.width = 300;
+            pRectangleElem->elem.height = 470;
+            pRectangleElem->elem.color.r = 0;
+            pRectangleElem->elem.color.g = 0;
+            pRectangleElem->elem.color.b = 0;
+            pRectangleElem->elem.color.a = 0;
+            pRectangleElem->elem.type = HE_TYPE_MATERIAL;
+            pRectangleElem->elem.alignOrg = ALIGN_TOP_LEFT;
+            pRectangleElem->elem.alignScreen = ALIGN_TOP_LEFT;
+            pRectangleElem->elem.sort = 0.0f;
+            pRectangleElem->elem.materialIndex = G_MaterialIndex("white");
         }
 
         // Toggle the visibility of the rectangle
-        if (!rectangleElem->elem.color.a)
-            rectangleElem->elem.color.a = 255;
+        if (!pRectangleElem->elem.color.a)
+            pRectangleElem->elem.color.a = 255;
         else
-            rectangleElem->elem.color.a = 0;
+            pRectangleElem->elem.color.a = 0;
     }
 }
 ```
@@ -190,7 +190,7 @@ struct Color
 VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
     (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x8234F9B8;
 
-LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
+HANDLE (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
 
 __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
 {
@@ -215,13 +215,13 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 ```
 Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
 ```C++
-CONST DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
-HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
+CONST DWORD dwSCR_DrawScreenFieldAddr = 0x8214BEB8;
+HookFunctionStart((LPDWORD)dwSCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
 ```
 
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha cchannel of the color used.
 ```C++
-LPVOID materialHandle = nullptr;
+LPVOID hMaterial = nullptr;
 Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
@@ -230,12 +230,12 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
     SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
-    if (!materialHandle)
-        materialHandle = Material_RegisterHandle("white", 0);
+    if (!hMaterial)
+        hMaterial = Material_RegisterHandle("white", 0);
 
     // Rendering the rectangle only if the alpha channel is positive
     if (black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, materialHandle);
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, hMaterial);
 }
 
 VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)

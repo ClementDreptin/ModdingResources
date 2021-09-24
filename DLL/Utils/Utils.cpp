@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "Utils.h"
 
-DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
-{
-    HMODULE mHandle = GetModuleHandle(moduleName);
 
-    return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
+DWORD ResolveFunction(LPCSTR szModuleName, DWORD dwOrdinal)
+{
+    HMODULE hModule = GetModuleHandle(szModuleName);
+
+    return (hModule == NULL) ? NULL : (DWORD)GetProcAddress(hModule, (LPCSTR)dwOrdinal);
 }
 
 XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
@@ -14,22 +15,22 @@ VOID InitMW2();
 
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
-    DWORD currentTitle;
+    DWORD dwCurrentTitle;
 
-    while (Running)
+    while (g_bRunning)
     {
-        DWORD newTitle = XamGetCurrentTitleId();
+        DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (newTitle != currentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            currentTitle = newTitle;
+            dwCurrentTitle = dwNewTitle;
 
-            switch (newTitle)
+            switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     // Making sure we initialize MW2 only when the multiplayer XEX is running
                     if (!strcmp((LPSTR)0x82001270, "multiplayer"))
                         InitMW2();
@@ -44,29 +45,29 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
 // Forgotten PPC intrinsic
 #define __isync() __emit(0x4C00012C)
 
-VOID PatchInJump(LPDWORD address, DWORD destination, BOOL linked)
+VOID PatchInJump(LPDWORD lpdwAddress, DWORD dwDestination, BOOL bLinked)
 {
-    DWORD writeBuffer;
+    DWORD dwWriteBuffer;
 
-    if (destination & 0x8000)
-        writeBuffer = 0x3D600000 + (((destination >> 16) & 0xFFFF) + 1);
+    if (dwDestination & 0x8000)
+        dwWriteBuffer = 0x3D600000 + (((dwDestination >> 16) & 0xFFFF) + 1);
     else
-        writeBuffer = 0x3D600000 + ((destination >> 16) & 0xFFFF);
+        dwWriteBuffer = 0x3D600000 + ((dwDestination >> 16) & 0xFFFF);
 
-    address[0] = writeBuffer;
-    writeBuffer = 0x396B0000 + (destination & 0xFFFF);
-    address[1] = writeBuffer;
-    writeBuffer = 0x7D6903A6;
-    address[2] = writeBuffer;
+    lpdwAddress[0] = dwWriteBuffer;
+    dwWriteBuffer = 0x396B0000 + (dwDestination & 0xFFFF);
+    lpdwAddress[1] = dwWriteBuffer;
+    dwWriteBuffer = 0x7D6903A6;
+    lpdwAddress[2] = dwWriteBuffer;
 
-    if (linked)
-        writeBuffer = 0x4E800421;
+    if (bLinked)
+        dwWriteBuffer = 0x4E800421;
     else
-        writeBuffer = 0x4E800420;
+        dwWriteBuffer = 0x4E800420;
 
-    address[3] = writeBuffer;
+    lpdwAddress[3] = dwWriteBuffer;
 
-    __dcbst(0, address);
+    __dcbst(0, lpdwAddress);
     __sync();
     __isync();
 }
@@ -98,69 +99,67 @@ VOID __declspec(naked) GLPR()
     }
 }
 
-DWORD RelinkGPLR(INT offset, LPDWORD saveStubAddr, LPDWORD orgAddr)
+DWORD RelinkGPLR(INT nOffset, LPDWORD lpdwSaveStubAddr, LPDWORD lpdwOrgAddr)
 {
-    DWORD inst = 0, repl;
-    INT i;
-    LPDWORD saver = (LPDWORD)GLPR;
+    DWORD dwInst = 0, dwRepl;
+    LPDWORD lpdwSaver = (LPDWORD)GLPR;
 
-    if (offset & 0x2000000)
-        offset = offset | 0xFC000000;
+    if (nOffset & 0x2000000)
+        nOffset = nOffset | 0xFC000000;
 
-    repl = orgAddr[offset / 4];
+    dwRepl = lpdwOrgAddr[nOffset / 4];
 
-    for (i = 0; i < 20; i++)
+    for (INT i = 0; i < 20; i++)
     {
-        if (repl == saver[i])
+        if (dwRepl == lpdwSaver[i])
         {
-            INT newOffset = (INT)&saver[i] - (INT)saveStubAddr;
-            inst = 0x48000001 | (newOffset & 0x3FFFFFC);
+            INT newOffset = (INT)&lpdwSaver[i] - (INT)lpdwSaveStubAddr;
+            dwInst = 0x48000001 | (newOffset & 0x3FFFFFC);
         }
     }
 
-    return inst;
+    return dwInst;
 }
 
-VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination)
+VOID HookFunctionStart(LPDWORD lpdwAddress, LPDWORD lpdwSaveStub, DWORD dwDestination)
 {
-    if (saveStub != NULL && address != NULL)
+    if (lpdwSaveStub != NULL && lpdwAddress != NULL)
     {
-        INT i;
-        DWORD addrReloc = (DWORD)(&address[4]);
-        DWORD writeBuffer;
+        DWORD dwAddrReloc = (DWORD)(&lpdwAddress[4]);
+        DWORD dwWriteBuffer;
 
-        if (addrReloc & 0x8000)
-            writeBuffer = 0x3D600000 + (((addrReloc >> 16) & 0xFFFF) + 1);
+        if (dwAddrReloc & 0x8000)
+            dwWriteBuffer = 0x3D600000 + (((dwAddrReloc >> 16) & 0xFFFF) + 1);
         else
-            writeBuffer = 0x3D600000 + ((addrReloc >> 16) & 0xFFFF);
+            dwWriteBuffer = 0x3D600000 + ((dwAddrReloc >> 16) & 0xFFFF);
 
-        saveStub[0] = writeBuffer;
-        writeBuffer = 0x396B0000 + (addrReloc & 0xFFFF);
-        saveStub[1] = writeBuffer;
-        writeBuffer = 0x7D6903A6;
-        saveStub[2] = writeBuffer;
+        lpdwSaveStub[0] = dwWriteBuffer;
+        dwWriteBuffer = 0x396B0000 + (dwAddrReloc & 0xFFFF);
+        lpdwSaveStub[1] = dwWriteBuffer;
+        dwWriteBuffer = 0x7D6903A6;
+        lpdwSaveStub[2] = dwWriteBuffer;
     
-        for (i = 0; i < 4; i++)
+        for (INT i = 0; i < 4; i++)
         {
-            if ((address[i] & 0x48000003) == 0x48000001)
+            if ((lpdwAddress[i] & 0x48000003) == 0x48000001)
             {
-                writeBuffer = RelinkGPLR((address[i] &~ 0x48000003), &saveStub[i + 3], &address[i]);
-                saveStub[i + 3] = writeBuffer;
+                dwWriteBuffer = RelinkGPLR((lpdwAddress[i] &~ 0x48000003), &lpdwSaveStub[i + 3], &lpdwAddress[i]);
+                lpdwSaveStub[i + 3] = dwWriteBuffer;
             }
             else
             {
-                writeBuffer = address[i];
-                saveStub[i + 3] = writeBuffer;
+                dwWriteBuffer = lpdwAddress[i];
+                lpdwSaveStub[i + 3] = dwWriteBuffer;
             }
         }
 
-        writeBuffer = 0x4E800420;
-        saveStub[7] = writeBuffer;
+        dwWriteBuffer = 0x4E800420;
+        lpdwSaveStub[7] = dwWriteBuffer;
 
-        __dcbst(0, saveStub);
+        __dcbst(0, lpdwSaveStub);
         __sync();
         __isync();
 
-        PatchInJump(address, destination, FALSE);
+        PatchInJump(lpdwAddress, dwDestination, FALSE);
     }
 }

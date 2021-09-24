@@ -5,10 +5,10 @@ What I and most people do is creating a constantly running loop that will check 
 First, we need a few things that will help us detect what game is currently running:
 ```C++
 // Enum for game title IDs
-enum Games : DWORD
+enum Games
 {
-    DASHBOARD = 0xFFFE07D1,
-    MW2 = 0x41560817
+    GAME_DASHBOARD = 0xFFFE07D1,
+    GAME_MW2 = 0x41560817
 };
 
 // Imports from the Xbox libraries
@@ -32,22 +32,22 @@ We are going to create a function that runs forever and checks if the title ID o
 ```C++
 VOID MonitorTitleId()
 {
-    DWORD currentTitle;
+    DWORD dwCurrentTitle;
 
-    while (true)
+    while (g_bRunning)
     {
-        DWORD newTitle = XamGetCurrentTitleId();
+        DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (newTitle != currentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            currentTitle = newTitle;
+            dwCurrentTitle = dwNewTitle;
 
-            switch (newTitle)
+            switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
@@ -63,22 +63,22 @@ BOOL Running = TRUE;
 
 DWORD MonitorTitleId(LPVOID lpThreadParameter)
 {
-    DWORD currentTitle;
+    DWORD dwCurrentTitle;
 
-    while (Running)
+    while (g_bRunning)
     {
-        DWORD newTitle = XamGetCurrentTitleId();
+        DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (newTitle != currentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            currentTitle = newTitle;
+            dwCurrentTitle = dwNewTitle;
 
-            switch (newTitle)
+            switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
@@ -100,7 +100,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
-            Running = FALSE;
+            g_bRunning = FALSE;
             // We give the system some time to clean up the thread before exiting
             Sleep(250);
             break;
