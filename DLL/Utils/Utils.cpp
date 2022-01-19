@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "Utils.h"
 
+
 DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal)
 {
     HMODULE hModule = GetModuleHandle(strModuleName.c_str());
 
     return (hModule == NULL) ? NULL : reinterpret_cast<DWORD>(GetProcAddress(hModule, reinterpret_cast<const char *>(dwOrdinal)));
 }
-
 
 XNOTIFYQUEUEUI XNotifyQueueUI = reinterpret_cast<XNOTIFYQUEUEUI>(Memory::ResolveFunction("xam.xex", 656));
 

@@ -106,7 +106,6 @@ int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)
 
 int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
 
-
 // Rendering API structs
 struct Color
 {
