@@ -2,10 +2,11 @@
 
 #include "..\Utils\Utils.h"
 
-// Function we found in the previous section
-VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
 
-__declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+// Function we found in the previous section
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
+
+void __declspec(naked) SV_ExecuteClientCommandStub(int client, const char *s, int clientOK, int fromOldServer)
 {
     // The stub needs to, at least, contain 7 instructions
     __asm
@@ -20,7 +21,7 @@ __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT cli
     }
 }
 
-VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
@@ -33,27 +34,28 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
 }
 
 // Sets up the hook
-VOID InitMW2()
+void InitMW2()
 {
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
-    HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
+    HookFunctionStart(reinterpret_cast<DWORD *>(SV_ExecuteClientCommandAddr), reinterpret_cast<DWORD *>(SV_ExecuteClientCommandStub), reinterpret_cast<DWORD>(SV_ExecuteClientCommandHook));
 }
 
-BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
     switch (fdwReason) 
     {
         case DLL_PROCESS_ATTACH:
             // Runs MonitorTitleId in separate thread
-            ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
+            ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
             break;
     }
+
     return TRUE;
 }

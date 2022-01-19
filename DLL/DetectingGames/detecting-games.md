@@ -17,12 +17,12 @@ extern "C"
     DWORD XamGetCurrentTitleId();
 
     DWORD __stdcall ExCreateThread(
-        LPHANDLE pHandle,
+        HANDLE *pHandle,
         DWORD dwStackSize,
-        LPDWORD lpThreadId,
-        LPVOID apiThreadStartup,
-        LPTHREAD_START_ROUTINE lpStartAddress,
-        LPVOID lpParameters,
+        DWORD *pThreadId,
+        void *apiThreadStartup,
+        PTHREAD_START_ROUTINE pStartAddress,
+        void *pParameter,
         DWORD dwCreationFlagsMod
     );
 }
@@ -30,19 +30,19 @@ extern "C"
 
 We are going to create a function that runs forever and checks if the title ID of the currently running game has changed since the last loop iteration:
 ```C++
-VOID MonitorTitleId()
+void MonitorTitleId()
 {
-    DWORD currentTitle;
+    DWORD dwCurrentTitle;
 
     while (true)
     {
-        DWORD newTitle = XamGetCurrentTitleId();
+        DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (newTitle != currentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            currentTitle = newTitle;
+            dwCurrentTitle = dwNewTitle;
 
-            switch (newTitle)
+            switch (dwNewTitle)
             {
                 case DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
@@ -57,21 +57,21 @@ VOID MonitorTitleId()
 ```
 
 We can't just call `MonitorTitleId` when `DllMain` receives the `DLL_PROCESS_ATTACH` reason because this will heavily slow down the main thread. That's why we need to run `MonitorTitleId` in a separate thread.
-By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `LPTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. That means we need the signature of our `MonitorTitleId` function to become:
+By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `PTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. That means we need the signature of our `MonitorTitleId` function to become:
 ```C++
-DWORD MonitorTitleId(LPVOID lpThreadParameter)
+DWORD MonitorTitleId(void *pThreadParameter)
 {
-    DWORD currentTitle;
+    DWORD dwCurrentTitle;
 
     while (true)
     {
-        DWORD newTitle = XamGetCurrentTitleId();
+        DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (newTitle != currentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            currentTitle = newTitle;
+            dwCurrentTitle = dwNewTitle;
 
-            switch (newTitle)
+            switch (dwNewTitle)
             {
                 case DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
@@ -89,17 +89,18 @@ DWORD MonitorTitleId(LPVOID lpThreadParameter)
 
 Now, to run `MonitorTitleId` in a separate thread, simply call `ExCreateThread` and pass a pointer to `MonitorTitleId` to it in your main function like so:
 ```C++
-BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
     switch (fdwReason) 
     {
         case DLL_PROCESS_ATTACH:
             // Runs MonitorTitleId in separate thread
-            ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
+            ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
             break;
     }
+
     return TRUE;
 }
 ```

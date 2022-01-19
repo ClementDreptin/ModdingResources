@@ -20,7 +20,7 @@ The XDK comes with a debug console called Xbox Watson, it's not that good and ve
 
 In order to print a message in the Xbox Watson console you're going to need to use the `DbgPrint` function from `xboxkrnl.lib`. You can do so by adding the following code somewhere in your project:
 ```C++
-extern "C" VOID DbgPrint(LPCSTR s, ...);
+extern "C" void DbgPrint(const char *s, ...);
 ```
 `DbgPrint` is a variadic function that works like `printf`, an example usage could be:
 ```C++

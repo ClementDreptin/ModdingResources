@@ -3,7 +3,7 @@
 #include "..\Utils\Utils.h"
 
 // HUD API structs and enums
-enum he_type_t : INT
+enum he_type_t : int
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -23,7 +23,7 @@ enum he_type_t : INT
     HE_TYPE_COUNT,
 };
 
-typedef enum align_t : INT
+typedef enum align_t : int
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -38,108 +38,108 @@ typedef enum align_t : INT
 
 struct hudelem_color_t
 {
-    BYTE r;
-    BYTE g;
-    BYTE b;
-    BYTE a;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 };
 
 struct hudelem_s
 {
     he_type_t type;
-    FLOAT y;
-    FLOAT x;
-    FLOAT z;
-    INT targetEntNum;
-    FLOAT fontScale;
-    FLOAT fromFontScale;
-    INT fontScaleStartTime;
-    INT fontScaleTime;
-    INT label;
-    INT font;
+    float y;
+    float x;
+    float z;
+    int targetEntNum;
+    float fontScale;
+    float fromFontScale;
+    int fontScaleStartTime;
+    int fontScaleTime;
+    int label;
+    int font;
     align_t alignOrg;
     align_t alignScreen;
     hudelem_color_t color;
     hudelem_color_t fromColor;
-    INT fadeStartTime;
-    INT fadeTime;
-    INT height;
-    INT width;
-    INT materialIndex;
-    INT fromHeight;
-    INT fromWidth;
-    INT scaleStartTime;
-    INT scaleTime;
-    FLOAT fromY;
-    FLOAT fromX;
-    INT fromAlignOrg;
-    INT fromAlignScreen;
-    INT moveStartTime;
-    INT moveTime;
-    FLOAT value;
-    INT time;
-    INT duration;
-    INT text;
-    FLOAT sort;
+    int fadeStartTime;
+    int fadeTime;
+    int height;
+    int width;
+    int materialIndex;
+    int fromHeight;
+    int fromWidth;
+    int scaleStartTime;
+    int scaleTime;
+    float fromY;
+    float fromX;
+    int fromAlignOrg;
+    int fromAlignScreen;
+    int moveStartTime;
+    int moveTime;
+    float value;
+    int time;
+    int duration;
+    int text;
+    float sort;
     hudelem_color_t glowColor;
-    INT fxBirthTime;
-    INT fxLetterTime;
-    INT fxDecayStartTime;
-    INT fxDecayDuration;
-    INT soundID;
-    INT flags;
+    int fxBirthTime;
+    int fxLetterTime;
+    int fxDecayStartTime;
+    int fxDecayDuration;
+    int soundID;
+    int flags;
 };
 
 struct game_hudelem_s
 {
     hudelem_s elem;
-    INT clientNum;
-    INT teamNum;
-    INT archived;
+    int clientNum;
+    int teamNum;
+    int archived;
 };
 
 // HUD API functions
-game_hudelem_s* (*HudElem_Alloc)(INT clientNum, INT teamNum) = (game_hudelem_s*(*)(INT, INT))0x821DF928;
+game_hudelem_s *(*HudElem_Alloc)(int clientNum, int teamNum) = reinterpret_cast<game_hudelem_s *(*)(int, int)>(0x821DF928);
 
-INT (*G_MaterialIndex)(LPCSTR name) = (INT(*)(LPCSTR))0x8220C960;
+int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)>(0x8220C960);
 
-INT (*G_LocalizedStringIndex)(LPCSTR string) = (INT(*)(LPCSTR))0x8220C7A0;
+int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
 
 
 // Rendering API structs
 struct Color
 {
-    FLOAT r;
-    FLOAT g;
-    FLOAT b;
-    FLOAT a;
+    float r;
+    float g;
+    float b;
+    float a;
 };
 
 struct Font_s
 {
-    INT fontName;
-    INT pixelHeight;
-    INT glyphCount;
-    INT material;
-    INT glowMaterial;
-    INT glyphs;
+    int fontName;
+    int pixelHeight;
+    int glyphCount;
+    int material;
+    int glowMaterial;
+    int glyphs;
 };
 
 // Rendering API functions
-VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
-    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x8234F9B8;
+void (*R_AddCmdDrawStretchPic)(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const float *color, HANDLE material) =
+    reinterpret_cast<void(*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
 
-VOID (*R_AddCmdDrawText)(LPCSTR text, INT maxChars, Font_s* font, FLOAT x, FLOAT y, FLOAT xScale, FLOAT yScale, FLOAT rotation, CONST PFLOAT color, INT style) =
-    (VOID(*)(LPCSTR , INT, Font_s* , FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, INT))0x82350278;
+void (*R_AddCmdDrawText)(const char *text, int maxChars, Font_s *font, float x, float y, float xScale, float yScale, float rotation, const float *color, int style) =
+    reinterpret_cast<void(*)(const char *, int, Font_s *, float, float, float, float, float, const float *, int)>(0x82350278);
 
-Font_s* (*R_RegisterFont)(LPCSTR font, INT imageTrack) = (Font_s*(*)(LPCSTR, INT))0x8234DCB0;
+Font_s *(*R_RegisterFont)(const char *font, int imageTrack) = reinterpret_cast<Font_s *(*)(const char *, int)>(0x8234DCB0);
 
-LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
+HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE(*)(const char *, int)>(0x8234E510);
 
 // Used to change some dvars
-VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
 
-__declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
+void __declspec(naked) SCR_DrawScreenFieldStub(const int localClientNum, int refreshedUI)
 {
     // The stub needs to, at least, contain 7 instructions
     __asm
@@ -154,19 +154,19 @@ __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT ref
     }
 }
 
-LPVOID materialHandle = nullptr;
-Font_s* normalFont = nullptr;
+HANDLE hMaterial = nullptr;
+Font_s *normalFont = nullptr;
 Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
 Color white = { 1.0f, 1.0f, 1.0f, 0.0f };
 
-VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
+void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
     // Calling the original SCR_DrawScreenField function
     SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
-    if (!materialHandle)
-        materialHandle = Material_RegisterHandle("white", 0);
+    if (!hMaterial)
+        hMaterial = Material_RegisterHandle("white", 0);
 
     // Register the normal font the first time we draw
     if (!normalFont)
@@ -174,17 +174,17 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 
     // Rendering the rectangle only if the alpha channel is positive
     if (black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, materialHandle);
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&black), hMaterial);
 
     // Rendering the text only if the alpha channel is positive
     if (white.a > 0.0f)
     {
-        const char* text = "Rendering API Text";
-        R_AddCmdDrawText(text, strlen(text), normalFont, 90.0f, 375.0f, 1.0f, 1.0f, 0.0f, (PFLOAT)&white, 0);
+        const char *text = "Rendering API Text";
+        R_AddCmdDrawText(text, strlen(text), normalFont, 90.0f, 375.0f, 1.0f, 1.0f, 0.0f, reinterpret_cast<float *>(&white), 0);
     }
 }
 
-__declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void __declspec(naked) SV_ExecuteClientCommandStub(int client, const char *s, int clientOK, int fromOldServer)
 {
     // The stub needs to, at least, contain 7 instructions
     __asm
@@ -199,10 +199,10 @@ __declspec(naked) VOID SV_ExecuteClientCommandStub(INT client, LPCSTR s, INT cli
     }
 }
 
-game_hudelem_s* rectangleElem = nullptr;
-game_hudelem_s* textElem = nullptr;
+game_hudelem_s *rectangleElem = nullptr;
+game_hudelem_s *textElem = nullptr;
 
-VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
@@ -279,31 +279,32 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
 }
 
 // Sets up the hook
-VOID InitMW2()
+void InitMW2()
 {
     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
 
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    CONST DWORD SV_ExecuteClientCommandAddr = 0x82253140;
-    CONST DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
+    const DWORD SV_ExecuteClientCommandAddr = 0x82253140;
+    const DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
 
     // Hooking SV_ExecuteClientCommand
-    HookFunctionStart((LPDWORD)SV_ExecuteClientCommandAddr, (LPDWORD)SV_ExecuteClientCommandStub, (DWORD)SV_ExecuteClientCommandHook);
-    HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
+    HookFunctionStart(reinterpret_cast<DWORD *>(SV_ExecuteClientCommandAddr), reinterpret_cast<DWORD *>(SV_ExecuteClientCommandStub), reinterpret_cast<DWORD>(SV_ExecuteClientCommandHook));
+    HookFunctionStart(reinterpret_cast<DWORD *>(SCR_DrawScreenFieldAddr), reinterpret_cast<DWORD *>(SCR_DrawScreenFieldStub), reinterpret_cast<DWORD>(SCR_DrawScreenFieldHook));
 }
 
-BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
     switch (fdwReason) 
     {
         case DLL_PROCESS_ATTACH:
             // Runs MonitorTitleId in separate thread
-            ExCreateThread(nullptr, 0, nullptr, nullptr, (LPTHREAD_START_ROUTINE)MonitorTitleId, nullptr, 2);
+            ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
             break;
     }
+
     return TRUE;
 }

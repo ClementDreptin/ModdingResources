@@ -46,7 +46,7 @@ Once your project is set up, replace everything from your main cpp file with thi
 ```C++
 #include "stdafx.h"
 
-BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
     switch (fdwReason) 
     {
@@ -55,12 +55,13 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         case DLL_PROCESS_DETACH:
             break;
     }
+
     return TRUE;
 }
 ```
 If you're not too familiar with the Windows eco-system, Windows uses a non-standard naming convention for their entry points and the entry point of a DLL must have the following signature:
 ```C++
-BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
+BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved);
 ```
 
 <br/>
@@ -68,16 +69,16 @@ BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
 We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we are going to need to import the `XNotifyQueueUI` function from `xam.xex`. Add this before your `DllMain` function:
 ```C++
 // Gets the address of the function within a module by its ordinal
-DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal)
+DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal)
 {
-    HMODULE mHandle = GetModuleHandle(moduleName);
+    HMODULE hModule = GetModuleHandle(strModuleName.c_str());
 
-    return (mHandle == NULL) ? NULL : (DWORD)GetProcAddress(mHandle, (LPCSTR)ordinal);
+    return (hModule == NULL) ? NULL : reinterpret_cast<DWORD>(GetProcAddress(hModule, reinterpret_cast<const char *>(dwOrdinal)));
 }
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, LPVOID contextData);
-XNOTIFYQUEUEUI XNotifyQueueUI = (XNOTIFYQUEUEUI)ResolveFunction("xam.xex", 656);
+typedef void (*XNOTIFYQUEUEUI)(XNOTIFYQUEUEUI_TYPE dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
+XNOTIFYQUEUEUI XNotifyQueueUI = reinterpret_cast<XNOTIFYQUEUEUI>(Memory::ResolveFunction("xam.xex", 656));
 ```
 
 <br/>

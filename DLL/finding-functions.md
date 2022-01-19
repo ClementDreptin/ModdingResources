@@ -94,7 +94,7 @@ which means `SV_GameSendServerCommand` is located at the address `0x822548D8` on
 Now that we found the address of a function, we want to call it from our code. To do so, we need to create a function pointer that points to it. If you need a little reminder on how function pointers work, [The Cherno's video](https://www.youtube.com/watch?v=p4sDgQ-jao4) is a good resource. The function signature was a comment above the function name in the IDA instance with the debug version, in our case it's `void __cdecl SV_GameSendServerCommand(int clientNum, svscmd_type type, const char *text)`. We don't have a definition for the `svscmd_type` type but it's an enum so, at the end of the day, it's just an integer, we'll replace it with `INT`.
 Our function pointer looks like this:
 ```C++
-VOID (*SV_GameSendServerCommand)(INT clientNum, INT type, LPCSTR text) = (VOID(*)(INT, INT, LPCSTR))0x822548D8;
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
 ```
 
 <br/><br/>

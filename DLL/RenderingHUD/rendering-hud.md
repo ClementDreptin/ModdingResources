@@ -14,7 +14,7 @@ Call of Duty games have an HUD API (which is exposed to the GSC VM but we won't 
 
 We are going to continue to use the code example shown in the previous section with the hook of the `SV_ExecuteClientCommand` function, and render HUD element when we press left on the DPAD. Which means our hook need to look like this:
 ```C++
-VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
@@ -30,7 +30,7 @@ VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOld
 ### HUD API (high level)
 Before creating any HUD element we need to create a few function pointers and structs.
 ```C++
-enum he_type_t : INT
+enum he_type_t : int
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -50,7 +50,7 @@ enum he_type_t : INT
     HE_TYPE_COUNT,
 };
 
-typedef enum align_t : INT
+typedef enum align_t : int
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -65,79 +65,79 @@ typedef enum align_t : INT
 
 struct hudelem_color_t
 {
-    BYTE r;
-    BYTE g;
-    BYTE b;
-    BYTE a;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 };
 
 struct hudelem_s
 {
     he_type_t type;
-    FLOAT y;
-    FLOAT x;
-    FLOAT z;
-    INT targetEntNum;
-    FLOAT fontScale;
-    FLOAT fromFontScale;
-    INT fontScaleStartTime;
-    INT fontScaleTime;
-    INT label;
-    INT font;
+    float y;
+    float x;
+    float z;
+    int targetEntNum;
+    float fontScale;
+    float fromFontScale;
+    int fontScaleStartTime;
+    int fontScaleTime;
+    int label;
+    int font;
     align_t alignOrg;
     align_t alignScreen;
     hudelem_color_t color;
     hudelem_color_t fromColor;
-    INT fadeStartTime;
-    INT fadeTime;
-    INT height;
-    INT width;
-    INT materialIndex;
-    INT fromHeight;
-    INT fromWidth;
-    INT scaleStartTime;
-    INT scaleTime;
-    FLOAT fromY;
-    FLOAT fromX;
-    INT fromAlignOrg;
-    INT fromAlignScreen;
-    INT moveStartTime;
-    INT moveTime;
-    FLOAT value;
-    INT time;
-    INT duration;
-    INT text;
-    FLOAT sort;
+    int fadeStartTime;
+    int fadeTime;
+    int height;
+    int width;
+    int materialIndex;
+    int fromHeight;
+    int fromWidth;
+    int scaleStartTime;
+    int scaleTime;
+    float fromY;
+    float fromX;
+    int fromAlignOrg;
+    int fromAlignScreen;
+    int moveStartTime;
+    int moveTime;
+    float value;
+    int time;
+    int duration;
+    int text;
+    float sort;
     hudelem_color_t glowColor;
-    INT fxBirthTime;
-    INT fxLetterTime;
-    INT fxDecayStartTime;
-    INT fxDecayDuration;
-    INT soundID;
-    INT flags;
+    int fxBirthTime;
+    int fxLetterTime;
+    int fxDecayStartTime;
+    int fxDecayDuration;
+    int soundID;
+    int flags;
 };
 
 struct game_hudelem_s
 {
     hudelem_s elem;
-    INT clientNum;
-    INT teamNum;
-    INT archived;
+    int clientNum;
+    int teamNum;
+    int archived;
 };
 
-game_hudelem_s* (*HudElem_Alloc)(INT clientNum, INT teamNum) = (game_hudelem_s*(*)(INT, INT))0x821DF928;
+game_hudelem_s *(*HudElem_Alloc)(int clientNum, int teamNum) = reinterpret_cast<game_hudelem_s *(*)(int, int)>(0x821DF928);
 
-INT (*G_MaterialIndex)(LPCSTR name) = (INT(*)(LPCSTR))0x8220C960;
+int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)>(0x8220C960);
 
-INT (*G_LocalizedStringIndex)(LPCSTR string) = (INT(*)(LPCSTR))0x8220C7A0;
+int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
 ```
 The structs are pretty self explanatory so I won't walk you through them. The functions are a little less intuitive. `HudElem_Alloc` simply creates a new `game_hudelem_s` and returns a pointer to it. Texts are generally not stored in the objects themselves but somewhere else and referenced by an index, `G_MaterialIndex` and `G_LocalizedStringIndex` register a material and a string respectively and return their index to reference them in our objects.
 
 Now that we have everything we need, we can start creating our HUD elements! To do so, we just need to create a new element by calling `HudElem_Alloc` and filling the `hudelem_s`. We'll only create the element the first time we press the button then toggle its visibility by modifying the alpha channel of its color.
 ```C++
-game_hudelem_s* rectangleElem = nullptr;
+game_hudelem_s *rectangleElem = nullptr;
 
-VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
@@ -181,18 +181,18 @@ Before creating HUD elements using the lower-level API, we'll need to create a f
 ```C++
 struct Color
 {
-    FLOAT r;
-    FLOAT g;
-    FLOAT b;
-    FLOAT a;
+    float r;
+    float g;
+    float b;
+    float a;
 };
 
-VOID (*R_AddCmdDrawStretchPic)(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT s0, FLOAT t0, FLOAT s1, FLOAT t1, CONST PFLOAT color, LPVOID material) =
-    (VOID(*)(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, CONST PFLOAT, LPVOID))0x8234F9B8;
+void (*R_AddCmdDrawStretchPic)(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const float *color, HANDLE material) =
+    reinterpret_cast<void(*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
 
-LPVOID (*Material_RegisterHandle)(LPCSTR name, INT imageTrack) = (LPVOID(*)(LPCSTR, INT))0x8234E510;
+HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE(*)(const char *, int)>(0x8234E510);
 
-__declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT refreshedUI)
+void __declspec(naked) SCR_DrawScreenFieldStub(const int localClientNum, int refreshedUI)
 {
     // The stub needs to, at least, contain 7 instructions
     __asm
@@ -207,7 +207,7 @@ __declspec(naked) VOID SCR_DrawScreenFieldStub(CONST INT localClientNum, INT ref
     }
 }
 
-VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
+void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
     // Calling the original SCR_DrawScreenField function
     SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
@@ -215,30 +215,30 @@ VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
 ```
 Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
 ```C++
-CONST DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
-HookFunctionStart((LPDWORD)SCR_DrawScreenFieldAddr, (LPDWORD)SCR_DrawScreenFieldStub, (DWORD)SCR_DrawScreenFieldHook);
+const DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
+HookFunctionStart(reinterpret_cast<DWORD *>(SCR_DrawScreenFieldAddr), reinterpret_cast<DWORD *>(SCR_DrawScreenFieldStub), reinterpret_cast<DWORD>(SCR_DrawScreenFieldHook));
 ```
 
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha cchannel of the color used.
 ```C++
-LPVOID materialHandle = nullptr;
+HANDLE hMaterial = nullptr;
 Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-VOID SCR_DrawScreenFieldHook(CONST INT localClientNum, INT refreshedUI)
+void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
     // Calling the original SCR_DrawScreenField function
     SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
-    if (!materialHandle)
-        materialHandle = Material_RegisterHandle("white", 0);
+    if (!hMaterial)
+        hMaterial = Material_RegisterHandle("white", 0);
 
     // Rendering the rectangle only if the alpha channel is positive
     if (black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, materialHandle);
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, hMaterial);
 }
 
-VOID SV_ExecuteClientCommandHook(INT client, LPCSTR s, INT clientOK, INT fromOldServer)
+void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);

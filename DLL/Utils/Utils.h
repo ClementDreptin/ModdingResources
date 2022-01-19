@@ -1,10 +1,10 @@
 #pragma once
 
 // Gets the address of the function within a module by its ordinal
-DWORD ResolveFunction(LPCSTR moduleName, DWORD ordinal);
+DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal);
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef VOID (*XNOTIFYQUEUEUI)(DWORD exnq, DWORD dwUserIndex, ULONGLONG qwAreas, PWCHAR displayText, LPVOID contextData);
+typedef void (*XNOTIFYQUEUEUI)(XNOTIFYQUEUEUI_TYPE dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
 extern XNOTIFYQUEUEUI XNotifyQueueUI;
 
 // Enum for game title IDs
@@ -20,18 +20,18 @@ extern "C"
     DWORD XamGetCurrentTitleId();
 
     DWORD __stdcall ExCreateThread(
-        LPHANDLE pHandle,
+        HANDLE *pHandle,
         DWORD dwStackSize,
-        LPDWORD lpThreadId,
-        LPVOID apiThreadStartup,
-        LPTHREAD_START_ROUTINE lpStartAddress,
-        LPVOID lpParameters,
+        DWORD *pThreadId,
+        void *apiThreadStartup,
+        PTHREAD_START_ROUTINE pStartAddress,
+        void *pParameter,
         DWORD dwCreationFlagsMod
     );
 }
 
 // Infinitely checks the current game running
-DWORD MonitorTitleId(LPVOID lpThreadParameter);
+DWORD MonitorTitleId(void *pThreadParameter);
 
 // Hooks a function
-VOID HookFunctionStart(LPDWORD address, LPDWORD saveStub, DWORD destination);
+void HookFunctionStart(DWORD *pdwAddress, DWORD *pdwSaveStub, DWORD dwDestination);
