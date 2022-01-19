@@ -1,5 +1,6 @@
 #include "pch.h"
 
+
 // Gets the address of the function within a module by its ordinal
 DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal)
 {

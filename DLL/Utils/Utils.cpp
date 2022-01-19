@@ -15,22 +15,22 @@ void InitMW2();
 
 DWORD MonitorTitleId(void *pThreadParameter)
 {
-    DWORD dwCurentTitle;
+    DWORD dwCurrentTitle;
 
     while (true)
     {
         DWORD dwNewTitle = XamGetCurrentTitleId();
 
-        if (dwNewTitle != dwCurentTitle)
+        if (dwNewTitle != dwCurrentTitle)
         {
-            dwCurentTitle = dwNewTitle;
+            dwCurrentTitle = dwNewTitle;
 
             switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     // Making sure we initialize MW2 only when the multiplayer XEX is running
                     if (!strcmp(reinterpret_cast<const char *>(0x82001270), "multiplayer"))
                         InitMW2();

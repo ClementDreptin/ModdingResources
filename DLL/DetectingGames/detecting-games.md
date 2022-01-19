@@ -5,10 +5,10 @@ What I and most people do is creating a constantly running loop that will check 
 First, we need a few things that will help us detect what game is currently running:
 ```C++
 // Enum for game title IDs
-enum Games : DWORD
+enum Games
 {
-    DASHBOARD = 0xFFFE07D1,
-    MW2 = 0x41560817
+    GAME_DASHBOARD = 0xFFFE07D1,
+    GAME_MW2 = 0x41560817
 };
 
 // Imports from the Xbox libraries
@@ -34,7 +34,7 @@ void MonitorTitleId()
 {
     DWORD dwCurrentTitle;
 
-    while (true)
+    while (g_bRunning)
     {
         DWORD dwNewTitle = XamGetCurrentTitleId();
 
@@ -44,10 +44,10 @@ void MonitorTitleId()
 
             switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
@@ -63,7 +63,7 @@ DWORD MonitorTitleId(void *pThreadParameter)
 {
     DWORD dwCurrentTitle;
 
-    while (true)
+    while (g_bRunning)
     {
         DWORD dwNewTitle = XamGetCurrentTitleId();
 
@@ -73,10 +73,10 @@ DWORD MonitorTitleId(void *pThreadParameter)
 
             switch (dwNewTitle)
             {
-                case DASHBOARD:
+                case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
                     break;
-                case MW2:
+                case GAME_MW2:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
                     break;
             }
@@ -98,6 +98,9 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
+            g_bRunning = FALSE;
+            // We give the system some time to clean up the thread before exiting
+            Sleep(250);
             break;
     }
 
@@ -106,7 +109,6 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 ```
 
 You might be wondering why we are using `ExCreateThread` instead of `CreateThread`, which is a function provided by Windows in a header file. The reason is that, in order to keep your thread running even when you switch games, you need to pass `2` in the `dwCreationFlagsMod` argument. Passing `2` to the `dwCreationFlags` argument of `CreateThread` does not keep your thread running when you switch games.
-No thread clean up is done here, it should be done but I don't know how to do it properly using the old Win32 API (cf. [The limits of loading/unload modules on demand](DevelopmentWorkflow/development-workflow.md#the-limits)). This is why you get a `Fatal Crash Intercepted` error when you try to unload your DLL while your thread is still running.
 
 <br/>
 

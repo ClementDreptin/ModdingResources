@@ -146,29 +146,29 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     if (!strcmp(s, "n 19"))
     {
         // Creating the rectangle only the first time we press the button
-        if (!rectangleElem)
+        if (!pRectangleElem)
         {
-            rectangleElem = HudElem_Alloc(0, 0);
-            rectangleElem->elem.x = 441.0f;
-            rectangleElem->elem.y = 5.0f;
-            rectangleElem->elem.width = 300;
-            rectangleElem->elem.height = 470;
-            rectangleElem->elem.color.r = 0;
-            rectangleElem->elem.color.g = 0;
-            rectangleElem->elem.color.b = 0;
-            rectangleElem->elem.color.a = 0;
-            rectangleElem->elem.type = HE_TYPE_MATERIAL;
-            rectangleElem->elem.alignOrg = ALIGN_TOP_LEFT;
-            rectangleElem->elem.alignScreen = ALIGN_TOP_LEFT;
-            rectangleElem->elem.sort = 0.0f;
-            rectangleElem->elem.materialIndex = G_MaterialIndex("white");
+            pRectangleElem = HudElem_Alloc(0, 0);
+            pRectangleElem->elem.x = 441.0f;
+            pRectangleElem->elem.y = 5.0f;
+            pRectangleElem->elem.width = 300;
+            pRectangleElem->elem.height = 470;
+            pRectangleElem->elem.color.r = 0;
+            pRectangleElem->elem.color.g = 0;
+            pRectangleElem->elem.color.b = 0;
+            pRectangleElem->elem.color.a = 0;
+            pRectangleElem->elem.type = HE_TYPE_MATERIAL;
+            pRectangleElem->elem.alignOrg = ALIGN_TOP_LEFT;
+            pRectangleElem->elem.alignScreen = ALIGN_TOP_LEFT;
+            pRectangleElem->elem.sort = 0.0f;
+            pRectangleElem->elem.materialIndex = G_MaterialIndex("white");
         }
 
         // Toggle the visibility of the rectangle
-        if (!rectangleElem->elem.color.a)
-            rectangleElem->elem.color.a = 255;
+        if (!pRectangleElem->elem.color.a)
+            pRectangleElem->elem.color.a = 255;
         else
-            rectangleElem->elem.color.a = 0;
+            pRectangleElem->elem.color.a = 0;
     }
 }
 ```

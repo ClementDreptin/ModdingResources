@@ -1,5 +1,6 @@
 #pragma once
 
+
 // Gets the address of the function within a module by its ordinal
 DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal);
 
@@ -8,10 +9,10 @@ typedef void (*XNOTIFYQUEUEUI)(XNOTIFYQUEUEUI_TYPE dwType, DWORD dwUserIndex, un
 extern XNOTIFYQUEUEUI XNotifyQueueUI;
 
 // Enum for game title IDs
-enum Games : DWORD
+enum Games
 {
-    DASHBOARD = 0xFFFE07D1,
-    MW2 = 0x41560817
+    GAME_DASHBOARD = 0xFFFE07D1,
+    GAME_MW2 = 0x41560817
 };
 
 // Imports from the Xbox libraries
@@ -29,6 +30,9 @@ extern "C"
         DWORD dwCreationFlagsMod
     );
 }
+
+// Maintains the main loop state
+BOOL g_bRunning = TRUE;
 
 // Infinitely checks the current game running
 DWORD MonitorTitleId(void *pThreadParameter);

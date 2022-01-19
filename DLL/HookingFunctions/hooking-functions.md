@@ -156,7 +156,7 @@ void __declspec(naked) GameFunctionStub(int param1, int param2)
 void GameFunctionHook(int param1, int param2)
 {
     // We call the initial function to keep the original behavior intact
-    GameFunctionStub(param1, param2);
+    GameFunctionStub(nParam1, nParam2);
 
     DbgPrint("GameFunction hooked!\n");
 }
@@ -206,10 +206,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Printing the command in the killfeed
-    std::string command = "f \"";
-    command += s;
-    command += "\"";
-    SV_GameSendServerCommand(-1, 0, command.c_str());
+    std::string strCommand = "f \"";
+    strCommand += s;
+    strCommand += "\"";
+    SV_GameSendServerCommand(-1, 0, strCommand.c_str());
 }
 ```
 Now we need to create a function that sets up the hook:
@@ -227,7 +227,7 @@ void InitMW2()
 ```
 The last thing to do is calling this function when MW2 is launched (in the switch statement of `MonitorTitleId`):
 ```C++
-switch (newTitle)
+switch (dwNewTitle)
 {
     case MW2_TITLE_ID:
         InitMW2();

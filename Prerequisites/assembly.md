@@ -10,7 +10,7 @@ Being able to read assembly language is important because this is the only way o
 ## How to convert an executable file to assembly?
 You can do this by using a disassembler, the most common one (and the only one that I know) is [IDA](https://hex-rays.com/ida-pro/). IDA is a paid software but there are plenty of resources online to get it for free that I won't link here for obvious reasons.
 In order to open Xbox 360 executable files (XEX), you'll need the [idaxex](https://github.com/emoose/idaxex) plugin (installation instructions are in the README).
-Once everything is installed and set up, you can simply drag your XEX file in IDA and prompt like this should appear.
+Once everything is installed and set up, you can simply drag your XEX file in IDA and a prompt like this should appear.
 
 <img src="./Images/ida-xex-prompt.png" alt="IDA Load XEX"/>
 

@@ -27,10 +27,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
 
     // Printing the command in the killfeed
-    std::string command = "f \"";
-    command += s;
-    command += "\"";
-    SV_GameSendServerCommand(-1, 0, command.c_str());
+    std::string strCommand = "f \"";
+    strCommand += s;
+    strCommand += "\"";
+    SV_GameSendServerCommand(-1, 0, strCommand.c_str());
 }
 
 // Sets up the hook
@@ -54,6 +54,9 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
+            g_bRunning = FALSE;
+            // We give the system some time to clean up the thread before exiting
+            Sleep(250);
             break;
     }
 

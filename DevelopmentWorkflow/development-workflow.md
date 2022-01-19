@@ -11,10 +11,6 @@ I use [ModuleLoader](https://github.com/ClementDreptin/ModuleLoader) to load and
 
 I'll let you read the README of the repository to download it and install what's needed. The documentation is also in the README.
 
-### The limits
-The biggest downside is that it becomes very tricky to unload a DLL if this DLL created a thread. Cleaning up threads is a very complicated topic, especially when you're stuck using an old version of the C++ standard library that does not support the `std::thread` API. I searched for a very long time throughout the internet and could never find a way to properly clean up a thread before unloading a DLL. My knowledge of the Win32 C threading API is also very limited so, if anyone knows how to solve this problem PLEASE TELL ME!
-This is a problem because Dashlaunch does not create a thread for you when loading your DLL. This means that, if your DLL is built with an update loop (it's usually the case), you absolutely need to create a thread otherwise your DLL is going to heavily slow the main thread.
-
 ## Using a debug console (Xbox Watson)
 The XDK comes with a debug console called Xbox Watson, it's not that good and very buggy but that's all we have. A start menu shortcut is created automatically so you can open it just by searching "Xbox Watson" in your start menu. The first thing to do is to register your console with its IP address, Xbox Watson doesn't use your default console in Xbox 360 Neighborhood like Visual Studio does for deploying for some reason. Go to `Actions > Select Consoles...` then type the IP address of your console and click `Add`.
 
