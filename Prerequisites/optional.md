@@ -1,5 +1,5 @@
 # Optional knowledge
-The following resources will help you understand concepts that are not necessarily required but good to know if you wanna dive a little deeper.
+The following resources will help you understand concepts that are not necessarily required but good to know if you want to dive a little deeper.
 
 ## Game engine architectures
 Despite their architecture differences, most game engines share some common concepts. The first ones that come to mind are probably:

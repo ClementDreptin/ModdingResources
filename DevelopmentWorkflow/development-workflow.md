@@ -14,14 +14,7 @@ I'll let you read the README of the repository to download it and install what's
 ## Using a debug console (Xbox Watson)
 The XDK comes with a debug console called Xbox Watson, it's not that good and very buggy but that's all we have. A start menu shortcut is created automatically so you can open it just by searching "Xbox Watson" in your start menu. The first thing to do is to register your console with its IP address, Xbox Watson doesn't use your default console in Xbox 360 Neighborhood like Visual Studio does for deploying for some reason. Go to `Actions > Select Consoles...` then type the IP address of your console and click `Add`.
 
-In order to print a message in the Xbox Watson console you're going to need to use the `DbgPrint` function from `xboxkrnl.lib`. You can do so by adding the following code somewhere in your project:
-```C++
-extern "C" void DbgPrint(const char *s, ...);
-```
-`DbgPrint` is a variadic function that works like `printf`, an example usage could be:
-```C++
-DbgPrint("value: %i", 3); // Prints "value: 3"
-```
+In order to print a message in the Xbox Watson console just write to `stdout` or `stderr` with `printf`, `std::cout`, `std::cerr` or `OutputDebugString`.
 
 ### Disclaimer
 Xbox Watson is very buggy, especially when exceptions occur (that's the case when you just have an RGH and not an actual devkit at least). When Xbox Watson detects that an exception occured on your console, it's going to tell you so and clicking OK or cancel will just make the pop-up appear again. At this point you're basically stuck, you can't close Xbox Watson by clicking the cross in the top-right corner so the only way to stop it is by killing its process in your task manager.

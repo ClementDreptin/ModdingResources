@@ -21,7 +21,7 @@ And voilà! Your XEX file is converted to assembly!
 <img src="./Images/ida.png" alt="IDA"/>
 
 ## Ok, what the hell is this?
-PowerPC is pretty straight forward to learn because there not that many instructions. Here's a list of references that I learned from:
+PowerPC is pretty straight forward to learn because there are not that many instructions. Here's a list of references that I learned from:
 - [IBM assembler language reference](https://www.ibm.com/docs/en/aix/7.2?topic=aix-assembler-language-reference)  
 IBM is one of the companies that created PowerPC, their website is, therefore, one of the best resources.
 - [PPC - Basics Tutorial](https://www.se7ensins.com/forums/threads/ppc-basics-tutorial.927634/) from Const  

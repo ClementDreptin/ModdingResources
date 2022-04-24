@@ -4,7 +4,7 @@ In order to creates mods for the Xbox 360, you'll need to install a few things:
 - [The Xbox 360 Software Development Kit (XDK)](#xdk)
 
 ## Visual Studio 2010: Ultimate
-Download Visual Studio 2010 Ultimate [here](https://my.visualstudio.com/Downloads?q=2010-ultimate). The Ultimate version of Visual Studio is required to fully install the XDK later on, otherwise I would make you install the Community version. As you may know, the Ultimate version is the professional and paid version of Visual Studio, which means you need a key to activate it after the free trial expires. You can pay for one or find a free one online (I won't tell you how).
+Download Visual Studio 2010 Ultimate [here](https://www.mediafire.com/file/o2as1owvhuz0aua/vs_ultimateweb.exe/file) (I had to upload the installation wizard to my own MediaFire because Microsoft removed it from their website). The Ultimate version of Visual Studio is required to fully install the XDK later on, otherwise I would make you install the Community version. As you may know, the Ultimate version is the professional and paid version of Visual Studio, which means you need a key to activate it after the free trial expires. You can pay for one or find a free one online (I won't tell you how).
 
 ## XDK
 The XDK is distributed my Microsoft to certified developers. You are probably not one and can't afford a license so I'll let you find a download link online to get it for free, there are plenty. As of August 10<sup>th</sup> of 2021, the latest XDK version is 21256.3 and I highly doubt any new ones will ever release so make sure you download this one.
