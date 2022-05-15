@@ -17,7 +17,7 @@ We are going to continue to use the code example shown in the previous section w
 void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
-    SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
+    pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
     if (!strcmp(s, "n 19"))
@@ -30,7 +30,7 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
 ### HUD API (high level)
 Before creating any HUD element we need to create a few function pointers and structs.
 ```C++
-enum he_type_t : int
+typedef enum he_type_t
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -50,7 +50,7 @@ enum he_type_t : int
     HE_TYPE_COUNT,
 };
 
-typedef enum align_t : int
+typedef enum align_t
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -135,12 +135,12 @@ The structs are pretty self explanatory so I won't walk you through them. The fu
 
 Now that we have everything we need, we can start creating our HUD elements! To do so, we just need to create a new element by calling `HudElem_Alloc` and filling the `hudelem_s`. We'll only create the element the first time we press the button then toggle its visibility by modifying the alpha channel of its color.
 ```C++
-game_hudelem_s *rectangleElem = nullptr;
+game_hudelem_s *pRectangleElem = nullptr;
 
 void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
-    SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
+    pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
     if (!strcmp(s, "n 19"))
@@ -192,65 +192,50 @@ void (*R_AddCmdDrawStretchPic)(float x, float y, float w, float h, float s0, flo
 
 HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE(*)(const char *, int)>(0x8234E510);
 
-void __declspec(naked) SCR_DrawScreenFieldStub(const int localClientNum, int refreshedUI)
-{
-    // The stub needs to, at least, contain 7 instructions
-    __asm
-    {
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-    }
-}
-
 void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
     // Calling the original SCR_DrawScreenField function
-    SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
+    pSCR_DrawScreenFieldDetour->GetOriginal<decltype(&SCR_DrawScreenFieldHook)>()(localClientNum, refreshedUI);
 }
 ```
 Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
 ```C++
-const DWORD SCR_DrawScreenFieldAddr = 0x8214BEB8;
-HookFunctionStart(reinterpret_cast<DWORD *>(SCR_DrawScreenFieldAddr), reinterpret_cast<DWORD *>(SCR_DrawScreenFieldStub), reinterpret_cast<DWORD>(SCR_DrawScreenFieldHook));
+const DWORD dwSCR_DrawScreenFieldAddr = 0x8214BEB8;
+pSCR_DrawScreenFieldDetour = new Detour(dwSCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
 ```
 
-To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha cchannel of the color used.
+To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha channel of the color used.
 ```C++
 HANDLE hMaterial = nullptr;
-Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
+Color Black = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
     // Calling the original SCR_DrawScreenField function
-    SCR_DrawScreenFieldStub(localClientNum, refreshedUI);
+    pSCR_DrawScreenFieldDetour->GetOriginal<decltype(&SCR_DrawScreenFieldHook)>()(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
     if (!hMaterial)
         hMaterial = Material_RegisterHandle("white", 0);
 
     // Rendering the rectangle only if the alpha channel is positive
-    if (black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, (PFLOAT)&black, hMaterial);
+    if (Black.a > 0.0f)
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&Black), hMaterial);
 }
 
 void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
     // Calling the original SV_ExecuteClientCommand function
-    SV_ExecuteClientCommandStub(client, s, clientOK, fromOldServer);
+    pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
     if (!strcmp(s, "n 19")
     {
         // Toggle the visibility of the rectangle
-        if (!black.a)
-            black.a = 1.0f;
+        if (!Black.a)
+            Black.a = 1.0f;
         else
-            white.a = 0.0f;
+            Black.a = 0.0f;
     }
 }
 ```

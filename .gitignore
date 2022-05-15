@@ -1,7 +1,4 @@
 bin/
 bin-int/
-ipch/
+.vs/
 *.user
-*.suo
-*.opensdf
-*.sdf

@@ -77,8 +77,8 @@ DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal)
 }
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef void (*XNOTIFYQUEUEUI)(XNOTIFYQUEUEUI_TYPE dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
-XNOTIFYQUEUEUI XNotifyQueueUI = reinterpret_cast<XNOTIFYQUEUEUI>(Memory::ResolveFunction("xam.xex", 656));
+typedef void (*XNOTIFYQUEUEUI)(DWORD dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
+XNOTIFYQUEUEUI XNotifyQueueUI = reinterpret_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 ```
 
 <br/>
