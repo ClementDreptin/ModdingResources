@@ -200,14 +200,14 @@ void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 ```
 Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
 ```C++
-const DWORD dwSCR_DrawScreenFieldAddr = 0x8214BEB8;
-pSCR_DrawScreenFieldDetour = new Detour(dwSCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
+const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;
+pSCR_DrawScreenFieldDetour = new Detour(SCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
 ```
 
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha channel of the color used.
 ```C++
-HANDLE hMaterial = nullptr;
-Color Black = { 0.0f, 0.0f, 0.0f, 0.0f };
+HANDLE materialHandle = nullptr;
+Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
@@ -215,12 +215,12 @@ void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
     pSCR_DrawScreenFieldDetour->GetOriginal<decltype(&SCR_DrawScreenFieldHook)>()(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
-    if (!hMaterial)
-        hMaterial = Material_RegisterHandle("white", 0);
+    if (!materialHandle)
+        materialHandle = Material_RegisterHandle("white", 0);
 
     // Rendering the rectangle only if the alpha channel is positive
-    if (Black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&Black), hMaterial);
+    if (black.a > 0.0f)
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&black), materialHandle);
 }
 
 void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
@@ -232,10 +232,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     if (!strcmp(s, "n 19")
     {
         // Toggle the visibility of the rectangle
-        if (!Black.a)
-            Black.a = 1.0f;
+        if (!black.a)
+            black.a = 1.0f;
         else
-            Black.a = 0.0f;
+            black.a = 0.0f;
     }
 }
 ```

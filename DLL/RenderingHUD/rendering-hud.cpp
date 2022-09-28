@@ -2,7 +2,6 @@
 
 #include "..\Utils\Utils.h"
 
-
 // HUD API structs and enums
 typedef enum he_type_t
 {
@@ -140,10 +139,10 @@ HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpre
 void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
 
 Detour *pSCR_DrawScreenFieldDetour = nullptr;
-HANDLE hMaterial = nullptr;
+HANDLE materialHandle = nullptr;
 Font_s *pFont = nullptr;
-Color Black = { 0.0f, 0.0f, 0.0f, 0.0f };
-Color White = { 1.0f, 1.0f, 1.0f, 0.0f };
+Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
+Color white = { 1.0f, 1.0f, 1.0f, 0.0f };
 
 void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
@@ -151,22 +150,22 @@ void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
     pSCR_DrawScreenFieldDetour->GetOriginal<decltype(&SCR_DrawScreenFieldHook)>()(localClientNum, refreshedUI);
 
     // Register the white material the first time we draw
-    if (!hMaterial)
-        hMaterial = Material_RegisterHandle("white", 0);
+    if (!materialHandle)
+        materialHandle = Material_RegisterHandle("white", 0);
 
     // Register the normal font the first time we draw
     if (!pFont)
         pFont = R_RegisterFont("fonts/normalFont", 0);
 
     // Rendering the rectangle only if the alpha channel is positive
-    if (Black.a > 0.0f)
-        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&Black), hMaterial);
+    if (black.a > 0.0f)
+        R_AddCmdDrawStretchPic(5.0f, 5.0f, 400.0f, 710.0f, 0.0f, 0.0f, 1.0f, 1.0f, reinterpret_cast<float *>(&black), materialHandle);
 
     // Rendering the text only if the alpha channel is positive
-    if (White.a > 0.0f)
+    if (white.a > 0.0f)
     {
         const char *text = "Rendering API Text";
-        R_AddCmdDrawText(text, strlen(text), pFont, 90.0f, 375.0f, 1.0f, 1.0f, 0.0f, reinterpret_cast<float *>(&White), 0);
+        R_AddCmdDrawText(text, strlen(text), pFont, 90.0f, 375.0f, 1.0f, 1.0f, 0.0f, reinterpret_cast<float *>(&white), 0);
     }
 }
 
@@ -237,15 +236,15 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
         }
 
         // Toggle the visibility of the rectangle and the text from the rendering API
-        if (!Black.a)
+        if (!black.a)
         {
-            Black.a = 1.0f;
-            White.a = 1.0f;
+            black.a = 1.0f;
+            white.a = 1.0f;
         }
         else
         {
-            Black.a = 0.0f;
-            White.a = 0.0f;
+            black.a = 0.0f;
+            white.a = 0.0f;
         }
     }
 }
@@ -258,12 +257,12 @@ void InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    const DWORD dwSV_ExecuteClientCommandAddr = 0x82253140;
-    const DWORD dwSCR_DrawScreenFieldAddr = 0x8214BEB8;
+    const uintptr_t SV_ExecuteClientCommandAddr = 0x82253140;
+    const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;
 
     // Hooking SV_ExecuteClientCommand and SCR_DrawScreenField
-    pSV_ExecuteClientCommandDetour = new Detour(dwSV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
-    pSCR_DrawScreenFieldDetour = new Detour(dwSCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
+    pSV_ExecuteClientCommandDetour = new Detour(SV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
+    pSCR_DrawScreenFieldDetour = new Detour(SCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
 }
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
@@ -275,7 +274,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
-            g_bRunning = false;
+            g_Running = false;
 
             if (pSV_ExecuteClientCommandDetour)
                 delete pSV_ExecuteClientCommandDetour;

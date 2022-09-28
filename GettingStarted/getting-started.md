@@ -69,16 +69,16 @@ BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved);
 We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we are going to need to import the `XNotifyQueueUI` function from `xam.xex`. Add this before your `DllMain` function:
 ```C++
 // Gets the address of the function within a module by its ordinal
-DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal)
+void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)
 {
-    HMODULE hModule = GetModuleHandle(strModuleName.c_str());
+    HMODULE hModule = GetModuleHandle(moduleName.c_str());
 
-    return (hModule == NULL) ? NULL : reinterpret_cast<DWORD>(GetProcAddress(hModule, reinterpret_cast<const char *>(dwOrdinal)));
+    return (hModule == NULL) ? NULL : GetProcAddress(hModule, reinterpret_cast<const char *>(ordinal));
 }
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef void (*XNOTIFYQUEUEUI)(DWORD dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
-XNOTIFYQUEUEUI XNotifyQueueUI = reinterpret_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
+typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas, const wchar_t *displayText, void *pContextData);
+XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 ```
 
 <br/>

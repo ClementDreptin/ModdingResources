@@ -13,19 +13,19 @@ The following examples use the [`Detour` class](../Utils/Utils.h#L47) declared i
 ```C++
 Detour *pGameFunctionDetour = nullptr;
 
-void GameFunctionHook(int iParam1, int iParam2)
+void GameFunctionHook(int param1, int param2)
 {
     // We call the initial function to keep the original behavior intact
-    pGameFunctionDetour->GetOriginal<decltype(&GameFunctionHook)>()(iParam1, iParam2);
+    pGameFunctionDetour->GetOriginal<decltype(&GameFunctionHook)>()(param1, param2);
 
     std::cout << "GameFunction hooked!\n";
 }
 
 void Init()
 {
-    const DWORD dwGameFunctionAddr = 0x82345678;
+    const uintptr_t gameFunctionAddr = 0x82345678;
 
-    pGameFunctionDetour = new Detour(dwGameFunctionAddr, GameFunctionHook);
+    pGameFunctionDetour = new Detour(gameFunctionAddr, GameFunctionHook);
 }
 
 void Cleanup()
@@ -59,10 +59,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Printing the command in the killfeed
-    std::string strCommand = "f \"";
-    strCommand += s;
-    strCommand += "\"";
-    SV_GameSendServerCommand(-1, 0, strCommand.c_str());
+    std::string command = "f \"";
+    command += s;
+    command += "\"";
+    SV_GameSendServerCommand(-1, 0, command.c_str());
 }
 ```
 Now we need to create a function that sets up the hook:
@@ -72,17 +72,17 @@ void InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    const DWORD dwSV_ExecuteClientCommandAddr = 0x82253140;
+    const uintptr_t SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
-    pSV_ExecuteClientCommandDetour = new Detour(dwSV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
+    pSV_ExecuteClientCommandDetour = new Detour(SV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
 }
 ```
 The last thing to do is calling this function when MW2 is launched (in the switch statement of `MonitorTitleId`):
 ```C++
-switch (dwNewTitle)
+switch (newTitleId)
 {
-    case MW2_TITLE_ID:
+    case GAME_MW2:
         InitMW2();
         break;
 }

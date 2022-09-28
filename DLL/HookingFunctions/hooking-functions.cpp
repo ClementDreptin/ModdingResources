@@ -2,7 +2,6 @@
 
 #include "..\Utils\Utils.h"
 
-
 // Function we found in the previous section
 void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
 
@@ -14,10 +13,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Printing the command in the killfeed
-    std::string strCommand = "f \"";
-    strCommand += s;
-    strCommand += "\"";
-    SV_GameSendServerCommand(-1, 0, strCommand.c_str());
+    std::string command = "f \"";
+    command += s;
+    command += "\"";
+    SV_GameSendServerCommand(-1, 0, command.c_str());
 }
 
 // Sets up the hook
@@ -26,10 +25,10 @@ void InitMW2()
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
 
-    const DWORD dwSV_ExecuteClientCommandAddr = 0x82253140;
+    const uintptr_t SV_ExecuteClientCommandAddr = 0x82253140;
 
     // Hooking SV_ExecuteClientCommand
-    pSV_ExecuteClientCommandDetour = new Detour(dwSV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
+    pSV_ExecuteClientCommandDetour = new Detour(SV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
 }
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
@@ -41,7 +40,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
-            g_bRunning = false;
+            g_Running = false;
 
             if (pSV_ExecuteClientCommandDetour)
                 delete pSV_ExecuteClientCommandDetour;

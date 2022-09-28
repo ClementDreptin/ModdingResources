@@ -3,3 +3,4 @@
 #include <xtl.h>
 #include <xboxmath.h>
 #include <string>
+#include <cstdint>

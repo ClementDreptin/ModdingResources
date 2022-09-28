@@ -32,17 +32,17 @@ We are going to create a function that runs forever and checks if the title ID o
 ```C++
 void MonitorTitleId()
 {
-    DWORD dwCurrentTitle;
+    uint32_t currentTitleId = 0;
 
-    while (g_bRunning)
+    while (g_Running)
     {
-        DWORD dwNewTitle = XamGetCurrentTitleId();
+        uint32_t newTitleId = XamGetCurrentTitleId();
 
-        if (dwNewTitle != dwCurrentTitle)
+        if (newTitleId != currentTitleId)
         {
-            dwCurrentTitle = dwNewTitle;
+            currentTitleId = newTitleId;
 
-            switch (dwNewTitle)
+            switch (newTitleId)
             {
                 case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
@@ -59,19 +59,19 @@ void MonitorTitleId()
 We can't just call `MonitorTitleId` when `DllMain` receives the `DLL_PROCESS_ATTACH` reason because this will heavily slow down the main thread. That's why we need to run `MonitorTitleId` in a separate thread.
 By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `PTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. That means we need the signature of our `MonitorTitleId` function to become:
 ```C++
-DWORD MonitorTitleId(void *pThreadParameter)
+uint32_t MonitorTitleId(void *pThreadParameter)
 {
-    DWORD dwCurrentTitle;
+    uint32_t currentTitleId = 0;
 
     while (g_bRunning)
     {
-        DWORD dwNewTitle = XamGetCurrentTitleId();
+        uint32_t newTitleId = XamGetCurrentTitleId();
 
-        if (dwNewTitle != dwCurrentTitle)
+        if (newTitleId != currentTitleId)
         {
-            dwCurrentTitle = dwNewTitle;
+            currentTitleId = newTitleId;
 
-            switch (dwNewTitle)
+            switch (newTitleId)
             {
                 case GAME_DASHBOARD:
                     XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
@@ -98,7 +98,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
             ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
             break;
         case DLL_PROCESS_DETACH:
-            g_bRunning = false;
+            g_Running = false;
             // We give the system some time to clean up the thread before exiting
             Sleep(250);
             break;

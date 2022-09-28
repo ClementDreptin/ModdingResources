@@ -1,4 +1,3 @@
-bin/
-bin-int/
+build/
 .vs/
 *.user

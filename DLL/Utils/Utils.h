@@ -1,11 +1,10 @@
 #pragma once
 
-
 // Gets the address of the function within a module by its ordinal
-DWORD ResolveFunction(const std::string &strModuleName, DWORD dwOrdinal);
+void *ResolveFunction(const std::string &moduleName, uint32_t ordinal);
 
 // Creates a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
-typedef void (*XNOTIFYQUEUEUI)(DWORD dwType, DWORD dwUserIndex, unsigned long long qwAreas, const wchar_t *wszDisplayText, void *pContextData);
+typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas, const wchar_t *displayText, void *pContextData);
 extern XNOTIFYQUEUEUI XNotifyQueueUI;
 
 // Enum for game title IDs
@@ -34,20 +33,22 @@ extern "C"
 }
 
 // Maintains the main loop state
-extern bool g_bRunning;
+extern bool g_Running;
 
 // Infinitely checks the current game running
-DWORD MonitorTitleId(void *pThreadParameter);
+uint32_t MonitorTitleId(void *pThreadParameter);
 
-#define POWERPC_BRANCH_OPTIONS_ALWAYS (20)
+#define POWERPC_BRANCH_OPTIONS_ALWAYS 20
 #define TRAMPOLINE_BUFFER_MAX_SIZE 0x1000
+
+typedef uint32_t POWERPC_INSTRUCTION;
 
 // Class to hook functions
 // Original version made my iMoD1998 (https://gist.github.com/iMoD1998/4aa48d5c990535767a3fc3251efc0348)
 class Detour
 {
 public:
-    Detour(DWORD dwHookSourceAddress, const void *pHookTarget);
+    Detour(uintptr_t hookSourceAddress, const void *pHookTarget);
     Detour(void *pHookSource, const void *pHookTarget);
 
     ~Detour();
@@ -64,6 +65,7 @@ public:
     {
         return reinterpret_cast<T>(m_pTrampolineDestination);
     }
+
 private:
     // The funtion we are pointing the hook to.
     const void *m_pHookTarget;
@@ -75,23 +77,23 @@ private:
     void *m_pTrampolineDestination;
 
     // Any bytes overwritten by the hook.
-    byte m_pbOriginalInstructions[30];
+    uint8_t m_OriginalInstructions[30];
 
     // The amount of bytes overwritten by the hook.
-    size_t m_uiOriginalLength;
+    size_t m_OriginalLength;
 
     // Buffer containing the trampoline bytes.
-    static byte s_pTrampolineBuffer[TRAMPOLINE_BUFFER_MAX_SIZE];
+    static uint8_t s_TrampolineBuffer[TRAMPOLINE_BUFFER_MAX_SIZE];
 
     // The current trampoline size.
-    static size_t s_uiTrampolineSize;
+    static size_t s_TrampolineSize;
 
     // Function that contains to constructor logic, it's meant to share the same logic for multiple constructors.
     // This is necessary because C++0x doesn't support calling one constructor from another constructor.
     void Init(void *pHookSource, const void *pHookTarget);
 
     // Write both conditional and unconditional branches using the count register to the destination address that will branch to the target address.
-    size_t WriteFarBranch(void *pDestination, const void *pBranchTarget, bool bLinked = false, bool bPreserveRegister = false, DWORD dwBranchOptions = POWERPC_BRANCH_OPTIONS_ALWAYS, byte bConditionRegisterBit = 0, byte bRegisterIndex = 0);
+    size_t WriteFarBranch(void *pDestination, const void *pBranchTarget, bool linked = false, bool preserveRegister = false, uint32_t branchOptions = POWERPC_BRANCH_OPTIONS_ALWAYS, uint8_t conditionRegisterBit = 0, uint8_t registerIndex = 0);
 
     // Copy and fix relative branch instructions to a new location.
     size_t RelocateBranch(void *pDestination, const void *pSource);
