@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "..\Utils\Utils.h"
+#include "../Utils/Utils.h"
 
 // Function we found in the previous section
 void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);

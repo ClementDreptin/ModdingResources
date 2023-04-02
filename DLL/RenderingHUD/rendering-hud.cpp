@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "..\Utils\Utils.h"
+#include "../Utils/Utils.h"
 
 // HUD API structs and enums
-typedef enum he_type_t
+typedef enum _he_type_t
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -21,9 +21,9 @@ typedef enum he_type_t
     HE_TYPE_CLOCK_UP,
     HE_TYPE_WAYPOINT,
     HE_TYPE_COUNT,
-};
+} he_type_t;
 
-typedef enum align_t
+typedef enum _align_t
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -34,7 +34,7 @@ typedef enum align_t
     ALIGN_TOP_RIGHT = 8,
     ALIGN_MIDDLE_RIGHT = 9,
     ALIGN_BOTTOM_RIGHT = 10
-};
+} align_t;
 
 struct hudelem_color_t
 {

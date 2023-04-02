@@ -8,7 +8,7 @@ Assembly is a textual representation of the CPU instructions contained in an exe
 Being able to read assembly language is important because this is the only way of looking at "the game's code" (unless the game's code is public, of course). Most companies don't make the source code of their games public for obvious reasons so the only way to look at how the game works is by "disassembling" it (converting the executable file into assembly language).
 
 ## How to convert an executable file to assembly?
-You can do this by using a disassembler, the most common one (and the only one that I know) is [IDA](https://hex-rays.com/ida-pro/). IDA is a paid software but there are plenty of resources online to get it for free that I won't link here for obvious reasons.
+You can do this by using a disassembler, the most common one (and the only one that I know) is [IDA](https://hex-rays.com/ida-pro/). IDA is a paid software but there are plenty of resources online to get it for free that I won't link here.
 In order to open Xbox 360 executable files (XEX), you'll need the [idaxex](https://github.com/emoose/idaxex) plugin (installation instructions are in the README).
 Once everything is installed and set up, you can simply drag your XEX file in IDA and a prompt like this should appear.
 

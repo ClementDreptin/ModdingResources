@@ -57,13 +57,13 @@ void MonitorTitleId()
 ```
 
 We can't just call `MonitorTitleId` when `DllMain` receives the `DLL_PROCESS_ATTACH` reason because this will heavily slow down the main thread. That's why we need to run `MonitorTitleId` in a separate thread.
-By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `PTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. That means we need the signature of our `MonitorTitleId` function to become:
+By looking at the signature of `ExCreateThread`, we see that the function pointer needs to be of type `PTHREAD_START_ROUTINE`, which is `DWORD (WINAPI *PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);`. Which means we need the signature of our `MonitorTitleId` function to become:
 ```C++
 uint32_t MonitorTitleId(void *pThreadParameter)
 {
     uint32_t currentTitleId = 0;
 
-    while (g_bRunning)
+    while (g_Running)
     {
         uint32_t newTitleId = XamGetCurrentTitleId();
 

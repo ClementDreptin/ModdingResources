@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "..\Utils\Utils.h"
+#include "../Utils/Utils.h"
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {

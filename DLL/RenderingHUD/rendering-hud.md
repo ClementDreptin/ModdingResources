@@ -30,7 +30,7 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
 ### HUD API (high level)
 Before creating any HUD element we need to create a few function pointers and structs.
 ```C++
-typedef enum he_type_t
+typedef enum _he_type_t
 {
     HE_TYPE_FREE,
     HE_TYPE_TEXT,
@@ -48,9 +48,9 @@ typedef enum he_type_t
     HE_TYPE_CLOCK_UP,
     HE_TYPE_WAYPOINT,
     HE_TYPE_COUNT,
-};
+} _he_type_t;
 
-typedef enum align_t
+typedef enum _align_t
 {
     ALIGN_TOP_LEFT = 0,
     ALIGN_MIDDLE_LEFT = 1,
@@ -61,7 +61,7 @@ typedef enum align_t
     ALIGN_TOP_RIGHT = 8,
     ALIGN_MIDDLE_RIGHT = 9,
     ALIGN_BOTTOM_RIGHT = 10
-};
+} align_t;
 
 struct hudelem_color_t
 {
@@ -229,7 +229,7 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     pSV_ExecuteClientCommandDetour->GetOriginal<decltype(&SV_ExecuteClientCommandHook)>()(client, s, clientOK, fromOldServer);
 
     // Checking if dpad left is pressed
-    if (!strcmp(s, "n 19")
+    if (!strcmp(s, "n 19"))
     {
         // Toggle the visibility of the rectangle
         if (!black.a)
