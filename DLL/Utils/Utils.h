@@ -43,7 +43,6 @@ uint32_t MonitorTitleId(void *pThreadParameter);
 
 typedef uint32_t POWERPC_INSTRUCTION;
 
-// Class to hook functions
 // Original version made my iMoD1998 (https://gist.github.com/iMoD1998/4aa48d5c990535767a3fc3251efc0348)
 class Detour
 {
@@ -53,39 +52,26 @@ public:
 
     ~Detour();
 
-    // Set up the detour.
     bool Install();
 
-    // Remove the detour.
     bool Remove();
 
-    // Get a pointer to the original function.
     template<typename T>
-    T GetOriginal() const
-    {
-        return reinterpret_cast<T>(m_pTrampolineDestination);
-    }
+    inline T GetOriginal() const { return reinterpret_cast<T>(m_pTrampolineDestination); }
 
 private:
-    // The funtion we are pointing the hook to.
     const void *m_pHookTarget;
 
-    // The function we are hooking.
     void *m_pHookSource;
 
-    // Pointer to the trampoline for this detour.
     void *m_pTrampolineDestination;
 
-    // Any bytes overwritten by the hook.
     uint8_t m_OriginalInstructions[30];
 
-    // The amount of bytes overwritten by the hook.
     size_t m_OriginalLength;
 
-    // Buffer containing the trampoline bytes.
     static uint8_t s_TrampolineBuffer[TRAMPOLINE_BUFFER_MAX_SIZE];
 
-    // The current trampoline size.
     static size_t s_TrampolineSize;
 
     // Function that contains to constructor logic, it's meant to share the same logic for multiple constructors.

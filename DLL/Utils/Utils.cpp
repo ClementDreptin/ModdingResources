@@ -83,7 +83,7 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 // UIMM/SIMM - Unsigned/signed immediate.
 #define POWERPC_ADDI(rD, rA, SIMM) static_cast<POWERPC_INSTRUCTION>(POWERPC_OPCODE_ADDI | (rD << POWERPC_BIT32(10)) | (rA << POWERPC_BIT32(15)) | SIMM)
 #define POWERPC_ADDIS(rD, rA, SIMM) static_cast<POWERPC_INSTRUCTION>(POWERPC_OPCODE_ADDIS | (rD << POWERPC_BIT32(10)) | (rA << POWERPC_BIT32(15)) | SIMM)
-#define POWERPC_LIS(rD, SIMM) POWERPC_ADDIS(rD, 0, SIMM)       // Mnemonic for addis %rD, 0, SIMM
+#define POWERPC_LIS(rD, SIMM) POWERPC_ADDIS(rD, 0, SIMM) // Mnemonic for addis %rD, 0, SIMM
 #define POWERPC_LI(rD, SIMM) POWERPC_ADDI(rD, 0, SIMM)   // Mnemonic for addi %rD, 0, SIMM
 #define POWERPC_MTSPR(SPR, rS) static_cast<POWERPC_INSTRUCTION>(POWERPC_OPCODE_EXTENDED | (rS << POWERPC_BIT32(10)) | (POWERPC_SPR(SPR) << POWERPC_BIT32(20)) | POWERPC_EXOPCODE_MTSPR)
 #define POWERPC_MTCTR(rS) POWERPC_MTSPR(9, rS) // Mnemonic for mtspr 9, rS
@@ -165,7 +165,7 @@ bool Detour::Remove()
     {
         // Trying to remove a hook from a game function after the game has been closed could cause a segfault so we
         // make sure the hook function is still loaded in memory
-        bool isHookSourceAddressValid = Xam::IsAddressValid(m_pHookSource);
+        bool isHookSourceAddressValid = MmIsAddressValid(m_pHookSource);
         if (isHookSourceAddressValid)
             memcpy(m_pHookSource, m_OriginalInstructions, m_OriginalLength);
 
@@ -181,19 +181,19 @@ bool Detour::Remove()
 size_t Detour::WriteFarBranch(void *pDestination, const void *pBranchTarget, bool linked, bool preserveRegister, POWERPC_INSTRUCTION branchOptions, uint8_t conditionRegisterBit, uint8_t registerIndex)
 {
     const POWERPC_INSTRUCTION branchFarAsm[] = {
-        POWERPC_LIS(registerIndex, POWERPC_HI(reinterpret_cast<uintptr_t>(pBranchTarget))),                 // lis   %rX, pBranchTarget@hi
-        POWERPC_ORI(registerIndex, registerIndex, POWERPC_LO(reinterpret_cast<uintptr_t>(pBranchTarget))),  // ori   %rX, %rX, pBranchTarget@lo
-        POWERPC_MTCTR(registerIndex),                                                                   // mtctr %rX
-        POWERPC_BCCTR(branchOptions, conditionRegisterBit, linked)                                      // bcctr (bcctr 20, 0 == bctr)
+        POWERPC_LIS(registerIndex, POWERPC_HI(reinterpret_cast<uintptr_t>(pBranchTarget))),                // lis   %rX, pBranchTarget@hi
+        POWERPC_ORI(registerIndex, registerIndex, POWERPC_LO(reinterpret_cast<uintptr_t>(pBranchTarget))), // ori   %rX, %rX, pBranchTarget@lo
+        POWERPC_MTCTR(registerIndex),                                                                      // mtctr %rX
+        POWERPC_BCCTR(branchOptions, conditionRegisterBit, linked)                                         // bcctr (bcctr 20, 0 == bctr)
     };
 
     const POWERPC_INSTRUCTION branchFarAsmPreserve[] = {
-        POWERPC_STD(registerIndex, -0x30, 1),                                                           // std   %rX, -0x30(%r1)
-        POWERPC_LIS(registerIndex, POWERPC_HI(reinterpret_cast<uintptr_t>(pBranchTarget))),                 // lis   %rX, pBranchTarget@hi
-        POWERPC_ORI(registerIndex, registerIndex, POWERPC_LO(reinterpret_cast<uintptr_t>(pBranchTarget))),  // ori   %rX, %rX, pBranchTarget@lo
-        POWERPC_MTCTR(registerIndex),                                                                   // mtctr %rX
-        POWERPC_LD(registerIndex, -0x30, 1),                                                            // lwz   %rX, -0x30(%r1)
-        POWERPC_BCCTR(branchOptions, conditionRegisterBit, linked)                                      // bcctr (bcctr 20, 0 == bctr)
+        POWERPC_STD(registerIndex, -0x30, 1),                                                              // std   %rX, -0x30(%r1)
+        POWERPC_LIS(registerIndex, POWERPC_HI(reinterpret_cast<uintptr_t>(pBranchTarget))),                // lis   %rX, pBranchTarget@hi
+        POWERPC_ORI(registerIndex, registerIndex, POWERPC_LO(reinterpret_cast<uintptr_t>(pBranchTarget))), // ori   %rX, %rX, pBranchTarget@lo
+        POWERPC_MTCTR(registerIndex),                                                                      // mtctr %rX
+        POWERPC_LD(registerIndex, -0x30, 1),                                                               // lwz   %rX, -0x30(%r1)
+        POWERPC_BCCTR(branchOptions, conditionRegisterBit, linked)                                         // bcctr (bcctr 20, 0 == bctr)
     };
 
     const POWERPC_INSTRUCTION *pBranchAsm = preserveRegister ? branchFarAsmPreserve : branchFarAsm;
