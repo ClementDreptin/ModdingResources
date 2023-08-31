@@ -3,7 +3,7 @@
 #include "../Utils/Utils.h"
 
 // Function we found in the previous section
-void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void (*)(int, int, const char *)>(0x822548D8);
 
 Detour *pSV_ExecuteClientCommandDetour = nullptr;
 
@@ -33,21 +33,21 @@ void InitMW2()
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
-    switch (fdwReason) 
+    switch (fdwReason)
     {
-        case DLL_PROCESS_ATTACH:
-            // Runs MonitorTitleId in separate thread
-            ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
-            break;
-        case DLL_PROCESS_DETACH:
-            g_Running = false;
+    case DLL_PROCESS_ATTACH:
+        // Runs MonitorTitleId in separate thread
+        ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
+        break;
+    case DLL_PROCESS_DETACH:
+        g_Running = false;
 
-            if (pSV_ExecuteClientCommandDetour)
-                delete pSV_ExecuteClientCommandDetour;
+        if (pSV_ExecuteClientCommandDetour)
+            delete pSV_ExecuteClientCommandDetour;
 
-            // We give the system some time to clean up the thread before exiting
-            Sleep(250);
-            break;
+        // We give the system some time to clean up the thread before exiting
+        Sleep(250);
+        break;
     }
 
     return TRUE;

@@ -1,18 +1,21 @@
 # Rendering HUD
+
 Getting feedback about what is going on in the killfeed is cool but kind of limited. In this section we are going to see 2 different ways of creating HUD elements.
 
 ## What are HUD elements?
 
->*In video gaming, the HUD (heads-up display) or status bar is the method by which information is visually relayed to the player as part of a game's user interface. It takes its name from the head-up displays used in modern aircraft.*
+> _In video gaming, the HUD (heads-up display) or status bar is the method by which information is visually relayed to the player as part of a game's user interface. It takes its name from the head-up displays used in modern aircraft._
 
-Source: [Wikipedia](https://en.wikipedia.org/wiki/HUD_(video_gaming))
+Source: [Wikipedia](<https://en.wikipedia.org/wiki/HUD_(video_gaming)>)
 
 On games like Call of Duty, the amount of ammo left in the weapon's magazine, the experience bar, the compass or the subtitles when you play the campaign mode are all part of the HUD. It's every piece of information displayed on the screen that's useful to the player without being part of the environment.
 
 ## HUD in Call of Duty
+
 Call of Duty games have an HUD API (which is exposed to the GSC VM but we won't get into that), this API contains functions like `HudElem_Alloc` or `HudElem_Free` and structs such as `game_hudelem_s` or `hudelem_s`. This API allows you to easily create HUD elements without having to manually render them in an update loop. Another way to create HUD elements is to use the lower level rendering API from the engine that provides us with functions like `R_AddCmdDrawStretchPic` or `R_AddCmdDrawText`.
 
 We are going to continue to use the code example shown in the previous section with the hook of the `SV_ExecuteClientCommand` function, and render HUD element when we press left on the DPAD. Which means our hook need to look like this:
+
 ```C++
 void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fromOldServer)
 {
@@ -28,7 +31,9 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
 ```
 
 ### HUD API (high level)
+
 Before creating any HUD element we need to create a few function pointers and structs.
+
 ```C++
 typedef enum _he_type_t
 {
@@ -131,9 +136,11 @@ int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)
 
 int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
 ```
+
 The structs are pretty self explanatory so I won't walk you through them. The functions are a little less intuitive. `HudElem_Alloc` simply creates a new `game_hudelem_s` and returns a pointer to it. Texts are generally not stored in the objects themselves but somewhere else and referenced by an index, `G_MaterialIndex` and `G_LocalizedStringIndex` register a material and a string respectively and return their index to reference them in our objects.
 
 Now that we have everything we need, we can start creating our HUD elements! To do so, we just need to create a new element by calling `HudElem_Alloc` and filling the `hudelem_s`. We'll only create the element the first time we press the button then toggle its visibility by modifying the alpha channel of its color.
+
 ```C++
 game_hudelem_s *pRectangleElem = nullptr;
 
@@ -172,12 +179,15 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     }
 }
 ```
+
 We now have a black rectangle appearing on the screen when we press left on the DPAD!
 
 In the [code example](rendering-hud.cpp), I also included a text element, the concept is the same as the rectangle so I'm not going to go through it.
 
 ### Rendering API (low-level)
+
 Before creating HUD elements using the lower-level API, we'll need to create a few function pointers and structs and even hook a new function.
+
 ```C++
 struct Color
 {
@@ -198,13 +208,16 @@ void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
     pSCR_DrawScreenFieldDetour->GetOriginal<decltype(&SCR_DrawScreenFieldHook)>()(localClientNum, refreshedUI);
 }
 ```
+
 Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
+
 ```C++
 const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;
 pSCR_DrawScreenFieldDetour = new Detour(SCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
 ```
 
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha channel of the color used.
+
 ```C++
 HANDLE materialHandle = nullptr;
 Color black = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -239,6 +252,7 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
     }
 }
 ```
+
 We now have a black rectangle appearing on the screen when we press left on the DPAD!
 
 In the [code example](rendering-hud.cpp), I also included, once again, a text element. We use `R_AddCmdDrawText` instead of `R_AddCmdDrawStretchPic` and need to register a font with `R_RegisterFont` but the algorithm is more or less the same, you shouldn't be lost.

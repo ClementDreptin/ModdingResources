@@ -20,11 +20,11 @@ int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 {
     switch (reason)
     {
-        case DLL_PROCESS_ATTACH:
-            XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
-            break;
-        case DLL_PROCESS_DETACH:
-            break;
+    case DLL_PROCESS_ATTACH:
+        XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
     }
 
     return TRUE;

@@ -101,9 +101,9 @@ struct game_hudelem_s
 // HUD API functions
 game_hudelem_s *(*HudElem_Alloc)(int clientNum, int teamNum) = reinterpret_cast<game_hudelem_s *(*)(int, int)>(0x821DF928);
 
-int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)>(0x8220C960);
+int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int (*)(const char *)>(0x8220C960);
 
-int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
+int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int (*)(const char *)>(0x8220C7A0);
 
 // Rendering API structs
 struct Color
@@ -126,17 +126,18 @@ struct Font_s
 
 // Rendering API functions
 void (*R_AddCmdDrawStretchPic)(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const float *color, HANDLE material) =
-    reinterpret_cast<void(*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
+    reinterpret_cast<void (*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
 
 void (*R_AddCmdDrawText)(const char *text, int maxChars, Font_s *font, float x, float y, float xScale, float yScale, float rotation, const float *color, int style) =
-    reinterpret_cast<void(*)(const char *, int, Font_s *, float, float, float, float, float, const float *, int)>(0x82350278);
+    reinterpret_cast<void (*)(const char *, int, Font_s *, float, float, float, float, float, const float *, int)>(0x82350278);
 
 Font_s *(*R_RegisterFont)(const char *font, int imageTrack) = reinterpret_cast<Font_s *(*)(const char *, int)>(0x8234DCB0);
 
-HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE(*)(const char *, int)>(0x8234E510);
+HANDLE(*Material_RegisterHandle)
+(const char *name, int imageTrack) = reinterpret_cast<HANDLE (*)(const char *, int)>(0x8234E510);
 
 // Used to change some dvars
-void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void (*)(int, int, const char *)>(0x822548D8);
 
 Detour *pSCR_DrawScreenFieldDetour = nullptr;
 HANDLE materialHandle = nullptr;
@@ -267,24 +268,24 @@ void InitMW2()
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 {
-    switch (fdwReason) 
+    switch (fdwReason)
     {
-        case DLL_PROCESS_ATTACH:
-            // Runs MonitorTitleId in separate thread
-            ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
-            break;
-        case DLL_PROCESS_DETACH:
-            g_Running = false;
+    case DLL_PROCESS_ATTACH:
+        // Runs MonitorTitleId in separate thread
+        ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
+        break;
+    case DLL_PROCESS_DETACH:
+        g_Running = false;
 
-            if (pSV_ExecuteClientCommandDetour)
-                delete pSV_ExecuteClientCommandDetour;
+        if (pSV_ExecuteClientCommandDetour)
+            delete pSV_ExecuteClientCommandDetour;
 
-            if (pSCR_DrawScreenFieldDetour)
-                delete pSCR_DrawScreenFieldDetour;
+        if (pSCR_DrawScreenFieldDetour)
+            delete pSCR_DrawScreenFieldDetour;
 
-            // We give the system some time to clean up the thread before exiting
-            Sleep(250);
-            break;
+        // We give the system some time to clean up the thread before exiting
+        Sleep(250);
+        break;
     }
 
     return TRUE;

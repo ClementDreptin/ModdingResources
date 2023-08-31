@@ -28,14 +28,14 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 
             switch (newTitleId)
             {
-                case GAME_DASHBOARD:
-                    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
-                    break;
-                case GAME_MW2:
-                    // Making sure we initialize MW2 only when the multiplayer XEX is running
-                    if (!strcmp(reinterpret_cast<const char *>(0x82001270), "multiplayer"))
-                        InitMW2();
-                    break;
+            case GAME_DASHBOARD:
+                XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
+                break;
+            case GAME_MW2:
+                // Making sure we initialize MW2 only when the multiplayer XEX is running
+                if (!strcmp(reinterpret_cast<const char *>(0x82001270), "multiplayer"))
+                    InitMW2();
+                break;
             }
         }
     }
