@@ -132,9 +132,9 @@ struct game_hudelem_s
 
 game_hudelem_s *(*HudElem_Alloc)(int clientNum, int teamNum) = reinterpret_cast<game_hudelem_s *(*)(int, int)>(0x821DF928);
 
-int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int(*)(const char *)>(0x8220C960);
+int (*G_MaterialIndex)(const char *name) = reinterpret_cast<int (*)(const char *)>(0x8220C960);
 
-int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int(*)(const char *)>(0x8220C7A0);
+int (*G_LocalizedStringIndex)(const char *string) = reinterpret_cast<int (*)(const char *)>(0x8220C7A0);
 ```
 
 The structs are pretty self explanatory so I won't walk you through them. The functions are a little less intuitive. `HudElem_Alloc` simply creates a new `game_hudelem_s` and returns a pointer to it. Texts are generally not stored in the objects themselves but somewhere else and referenced by an index, `G_MaterialIndex` and `G_LocalizedStringIndex` register a material and a string respectively and return their index to reference them in our objects.
@@ -198,9 +198,9 @@ struct Color
 };
 
 void (*R_AddCmdDrawStretchPic)(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const float *color, HANDLE material) =
-    reinterpret_cast<void(*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
+    reinterpret_cast<void (*)(float, float, float, float, float, float, float, float, const float *, HANDLE)>(0x8234F9B8);
 
-HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE(*)(const char *, int)>(0x8234E510);
+HANDLE (*Material_RegisterHandle)(const char *name, int imageTrack) = reinterpret_cast<HANDLE (*)(const char *, int)>(0x8234E510);
 
 void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 {
@@ -214,6 +214,7 @@ Since we are using a lower-level API, we need to draw our elements manually in a
 ```C++
 const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;
 pSCR_DrawScreenFieldDetour = new Detour(SCR_DrawScreenFieldAddr, SCR_DrawScreenFieldHook);
+pSCR_DrawScreenFieldDetour->Install();
 ```
 
 To render HUD elements we first need to register a material with `Material_RegisterHandle`, we can then pass the returned pointer to `R_AddCmdDrawStretchPic` to render a rectangle. We'll set up the same toggling system as before in `SV_ExecuteClientCommand` by changing the alpha channel of the color used.
