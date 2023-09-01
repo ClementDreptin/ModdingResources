@@ -65,8 +65,8 @@ uint32_t MonitorTitleId(void *pThreadParameter)
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
             break;
         case GAME_MW2:
-            XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
-            InitMW2();
+            if (!strcmp(reinterpret_cast<char *>(0x82001270), "multiplayer"))
+                InitMW2();
             break;
         }
     }
@@ -276,6 +276,8 @@ void InitMW2()
 {
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
+
+    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
 
     const uintptr_t SV_ExecuteClientCommandAddr = 0x82253140;
 

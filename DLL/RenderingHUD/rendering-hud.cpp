@@ -65,8 +65,8 @@ uint32_t MonitorTitleId(void *pThreadParameter)
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
             break;
         case GAME_MW2:
-            XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
-            InitMW2();
+            if (!strcmp(reinterpret_cast<char *>(0x82001270), "multiplayer"))
+                InitMW2();
             break;
         }
     }
@@ -505,10 +505,10 @@ void SV_ExecuteClientCommandHook(int client, const char *s, int clientOK, int fr
 // Sets up the hook
 void InitMW2()
 {
-    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
-
     // Waiting a little bit for the game to be fully loaded in memory
     Sleep(200);
+
+    XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
 
     const uintptr_t SV_ExecuteClientCommandAddr = 0x82253140;
     const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;

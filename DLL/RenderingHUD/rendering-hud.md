@@ -209,7 +209,7 @@ void SCR_DrawScreenFieldHook(const int localClientNum, int refreshedUI)
 }
 ```
 
-Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these two lines to your `InitMW2` function.
+Since we are using a lower-level API, we need to draw our elements manually in an update loop, the game already has a drawing function called `SCR_DrawScreenField` so we are going to use it (by hooking it). Since we are hooking a new function, don't forget to add these three lines to your `InitMW2` function.
 
 ```C++
 const uintptr_t SCR_DrawScreenFieldAddr = 0x8214BEB8;
