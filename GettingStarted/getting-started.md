@@ -131,7 +131,7 @@ The result should look like this:
 
 <br/>
 
-**Note:** A clean solution with this getting started project is available [here](https://github.com/ClementDreptin/ModdingResources/tree/master/GettingStarted/GettingStarted/) if you want to start from it or play around with it. I recommended doing all the previous steps manually in your own project instead of starting from the example given. The best way to learn is to actually do it yourself!
+**Note:** A clean solution with this getting started project is available [here](./GettingStarted) if you want to start from it or play around with it. I recommended doing all the previous steps manually in your own project instead of starting from the example given. The best way to learn is to actually do it yourself!
 
 <br/><br/>
 
