@@ -14,7 +14,7 @@ On the next prompt, click `Next` then click `Finish`.
 
 Before writing any code, you'll need to set up a few things in Visual Studio to be able to compile and deploy to your console successfully. In the `Solution Explorer`, right-click on your project and click on `Properties`. Make sure you are in the `Configuration Properties` tab (you should be by default).
 
--   Unless you have a devkit with the debug kernel, you can't debug remotely from Visual Studio, which means you can remove every configuration besides `Release_LTCG`. To do so, go to `Configuration Manager... > Active solution configuration > <Edit...>` and remove every configuration except `Release_LTCG`.
+-   Unless you have a devkit with the debug kernel, you can't debug remotely from Visual Studio, which means you can remove every configuration besides `Release`. To do so, go to `Configuration Manager... > Active solution configuration > <Edit...>` and remove every configuration except `Release`.
 -   Go to `General` and set your application type to `Dynamic Library (.xex)`.
 -   Add this to your linker command line options in `Linker > Command Line`:
     ```
@@ -26,20 +26,20 @@ Before writing any code, you'll need to set up a few things in Visual Studio to 
     <?xml version="1.0"?>
     <xex>
         <baseaddr addr="0x91D00000"/>
-        <sysdll/>
+        <sysdll />
         <format>
-            <compressed/>
+            <compressed />
         </format>
         <mediatypes>
-            <default/>
+            <default />
             <allpackages/>
         </mediatypes>
         <gameregion>
-            <all/>
+            <all />
         </gameregion>
     </xex>
     ```
-    The base address doesn't need to be `0x91D00000` but it must not conflict with the base address of any other loaded plugin and must be greater than `0x82000000` + the size of the application currently running. I recommended setting the base address as anything greater than `0x90000000`.
+    The base address doesn't need to be `0x91D00000` but it must not conflict with the base address of any other loaded plugin and must be greater than `0x82000000` + the size of the application currently running. I recommended setting the base address to anything greater than `0x90000000`.
     Now set this file as your config file in `Xbox 360 Image Conversion > General > Configuration File`.
 -   If you want to deploy the XEX file to your console automatically after building it, go to `Console Deployment > General > Deployment Type` and set your deployment type to `Copy to Hard Drive`. Now go to `Console Deployment > Copy To Hard Drive > Deployment Root` and set the path to where you want the XEX file to be uploaded on your hard drive. I usually set mine to `hdd:\Plugins` but most people put their plugins at the root of their hard drive (`hdd:\`). **Note: your console needs to be set as the default console in Xbox 360 Neighborhood!**
 
@@ -50,14 +50,14 @@ Once your project is set up, replace everything from your main cpp file with thi
 ```C++
 #include "stdafx.h"
 
-BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
+int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 {
-    switch (fdwReason)
+    switch (reason)
     {
-        case DLL_PROCESS_ATTACH:
-            break;
-        case DLL_PROCESS_DETACH:
-            break;
+    case DLL_PROCESS_ATTACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
     }
 
     return TRUE;
@@ -67,7 +67,7 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved)
 If you're not too familiar with the Windows eco-system, Windows uses a non-standard naming convention for their entry points and the entry point of a DLL must have the following signature:
 
 ```C++
-BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved);
+int DllMain(HANDLE hModule, DWORD reason, void *pReserved);
 ```
 
 <br/>
@@ -75,15 +75,17 @@ BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void *pReserved);
 We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we need to import the `XNotifyQueueUI` function from `xam.xex`. Add this before your `DllMain` function:
 
 ```C++
-// Get the address of the function within a module by its ordinal
+// Get the address of a function from a module by its ordinal
 void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)
 {
-    HMODULE hModule = GetModuleHandle(moduleName.c_str());
+    HMODULE moduleHandle = GetModuleHandle(moduleName.c_str());
+    if (moduleHandle == nullptr)
+        return nullptr;
 
-    return (hModule == NULL) ? NULL : GetProcAddress(hModule, reinterpret_cast<const char *>(ordinal));
+    return GetProcAddress(moduleHandle, reinterpret_cast<const char *>(ordinal));
 }
 
-// Create a function pointer from the address of XNotifyQueueUI retrieved by ResolveFunction
+// Create a pointer to XNotifyQueueUI in xam.xex
 typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas, const wchar_t *displayText, void *pContextData);
 XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 ```
@@ -93,7 +95,7 @@ XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam
 We can now call `XNotifyQueueUI` when our DLL gets loaded like so:
 
 ```C++
-switch (fdwReason)
+switch (reason)
 {
     case DLL_PROCESS_ATTACH:
         XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
