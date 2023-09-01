@@ -103,7 +103,7 @@ Now that we found the address of a function, we want to call it from our code. T
 Our function pointer looks like this:
 
 ```C++
-void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void(*)(int, int, const char *)>(0x822548D8);
+void (*SV_GameSendServerCommand)(int clientNum, int type, const char *text) = reinterpret_cast<void (*)(int, int, const char *)>(0x822548D8);
 ```
 
 <br/><br/>
