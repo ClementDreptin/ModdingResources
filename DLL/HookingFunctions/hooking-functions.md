@@ -12,7 +12,7 @@ We need to hook functions to be notified on certain events. The most common scen
 
 ## Writing a hook
 
-The following examples use the [`Detour` class](../Utils/Utils.h#L46) declared in [`Utils.h`](../Utils/Utils.h). This class is a slightly modified version of [iMoD1998](https://github.com/iMoD1998)'s [Detour class](https://gist.github.com/iMoD1998/4aa48d5c990535767a3fc3251efc0348). You can use it like so:
+The following examples use the [`Detour` class](hooking-functions.cpp#L82), you can use it like so:
 
 ```C++
 Detour *pGameFunctionDetour = nullptr;
@@ -30,6 +30,9 @@ void Init()
     const uintptr_t gameFunctionAddr = 0x82345678;
 
     pGameFunctionDetour = new Detour(gameFunctionAddr, GameFunctionHook);
+    HRESULT hr = pGameFunctionDetour->Install();
+    if (FAILED(hr))
+        std::cerr << "Something didn't work\n";
 }
 
 void Cleanup()
@@ -87,6 +90,7 @@ void InitMW2()
 
     // Hooking SV_ExecuteClientCommand
     pSV_ExecuteClientCommandDetour = new Detour(SV_ExecuteClientCommandAddr, SV_ExecuteClientCommandHook);
+    pSV_ExecuteClientCommandDetour->Install();
 }
 ```
 
@@ -96,6 +100,7 @@ The last thing to do is calling this function when MW2 is launched (in the switc
 switch (newTitleId)
 {
     case GAME_MW2:
+        XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
         InitMW2();
         break;
 }
