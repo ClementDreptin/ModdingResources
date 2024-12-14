@@ -28,9 +28,9 @@ And voilà! Your XEX file is converted to assembly!
 
 PowerPC is pretty straight forward to learn because there are not that many instructions. Here's a list of references that I learned from:
 
--   [IBM assembler language reference](https://www.ibm.com/docs/en/aix/7.2?topic=aix-assembler-language-reference)
+-   [IBM assembler language reference](https://www.ibm.com/docs/en/aix/7.2?topic=aix-assembler-language-reference)<br>
     IBM is one of the companies that created PowerPC, their website is, therefore, one of the best resources.
--   [PPC - Basics Tutorial](https://www.se7ensins.com/forums/threads/ppc-basics-tutorial.927634/) from Const
+-   [PPC - Basics Tutorial](https://www.se7ensins.com/forums/threads/ppc-basics-tutorial.927634/) from Const<br>
     Reading the IBM documentation can be a little overwhelming so Const made a concise tutorial with the most common instructions you need to understand to get started.
 
 <br/><br/>
