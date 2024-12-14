@@ -77,8 +77,8 @@ int DllMain(HANDLE hModule, DWORD reason, void *pReserved);
 We are going to display a notification with the text "Hello World!" when our DLL is loaded. For that, we need to import the `XNotifyQueueUI` function from `xam.xex`. Add this before your `DllMain` function:
 
 ```C++
-#include <string>
 #include <cstdint>
+#include <string>
 
 // Get the address of a function from a module by its ordinal
 void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)

@@ -7,11 +7,11 @@ First, we need a few things that will help us detect what game is currently runn
 
 ```C++
 // Enum for game title IDs
-enum Games
+typedef enum _TitleId
 {
-    GAME_DASHBOARD = 0xFFFE07D1,
-    GAME_MW2 = 0x41560817
-};
+    Title_Dashboard = 0xFFFE07D1,
+    Title_MW2 = 0x41560817,
+} TitleId;
 
 // Imports from the Xbox libraries
 extern "C"
@@ -50,10 +50,10 @@ void MonitorTitleId()
 
         switch (newTitleId)
         {
-        case GAME_DASHBOARD:
+        case Title_Dashboard:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
             break;
-        case GAME_MW2:
+        case Title_MW2:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
             break;
         }
@@ -80,10 +80,10 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 
         switch (newTitleId)
         {
-        case GAME_DASHBOARD:
+        case Title_Dashboard:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
             break;
-        case GAME_MW2:
+        case Title_MW2:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
             break;
         }

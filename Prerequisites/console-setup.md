@@ -1,4 +1,5 @@
 # Setting up the console
+
 If you are interested in modding games, you probably already did all of this, but I'm going to list all the tools that need to be installed on the console before doing anything else, just in case.
 This will only cover the setup for an Xbox 360, as the rest of the tutorials will be for the Xbox 360.
 
@@ -8,9 +9,9 @@ I'm not going to detail everything because it has already been covered by a lot 
 
 Before going any further, make sure you have the following installed on your console:
 
-- XeXMenu
-- Dashlaunch
-- XBDM
+-   XeXMenu
+-   Dashlaunch
+-   XBDM
 
 **Note:** Xbox 360 Neighborhood is also required but will be installed automatically while installing the XDK in the [Installing the development environment](install-env.md) chapter.
 

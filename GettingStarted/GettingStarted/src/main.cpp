@@ -1,6 +1,7 @@
 #include <xtl.h>
-#include <string>
+
 #include <cstdint>
+#include <string>
 
 // Get the address of a function from a module by its ordinal
 void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)

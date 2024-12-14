@@ -1,6 +1,7 @@
 #include <xtl.h>
-#include <string>
+
 #include <cstdint>
+#include <string>
 
 // Get the address of a function from a module by its ordinal
 void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)
@@ -17,11 +18,11 @@ typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas
 XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 
 // Enum for game title IDs
-enum Games
+typedef enum _TitleId
 {
-    GAME_DASHBOARD = 0xFFFE07D1,
-    GAME_MW2 = 0x41560817
-};
+    Title_Dashboard = 0xFFFE07D1,
+    Title_MW2 = 0x41560817,
+} TitleId;
 
 // Imports from the Xbox libraries
 extern "C"
@@ -57,10 +58,10 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 
         switch (newTitleId)
         {
-        case GAME_DASHBOARD:
+        case Title_Dashboard:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Dashboard", nullptr);
             break;
-        case GAME_MW2:
+        case Title_MW2:
             XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"MW2", nullptr);
             break;
         }
