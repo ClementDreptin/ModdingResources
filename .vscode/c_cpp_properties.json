@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Debug",
+            "includePath": ["${env:XEDK}/include/xbox"],
+            "defines": ["_XBOX", "_MBCS"],
+            "intelliSenseMode": "windows-msvc-x86"
+        },
+        {
+            "name": "Release",
+            "includePath": ["${env:XEDK}/include/xbox"],
+            "defines": ["NDEBUG", "_XBOX", "_MBCS"],
+            "intelliSenseMode": "windows-msvc-x86"
+        }
+    ],
+    "version": 4
+}
