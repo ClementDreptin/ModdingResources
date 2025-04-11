@@ -1,5 +1,5 @@
 # Modding Resources
 
-This repository will contain everything that I know about modifying video-games, especially on the Xbox 360. Resources in this repository either come from my personal research or various online resources. I'll try to credit my resources as much as possible but I may forget some here and there.
+This repository will contain everything that I know about modifying video-games on the Xbox 360. Resources in this repository either come from my personal research or various online resources. I'll try to credit my resources as much as possible but I may forget some here and there.
 
 Get to the home page [here](home.md).

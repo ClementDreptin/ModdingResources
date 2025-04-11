@@ -1,6 +1,6 @@
 # Reading assembly language (PowerPC)
 
-As I mentioned in the introduction, this repository focuses on modding games for the Xbox 360, which has a PowerPC CPU, all of the examples shown in this page will then be in PowerPC.
+The Xbox 360 has a PowerPC CPU so all of the examples shown in this page will then be in PowerPC.
 
 ## What is assembly?
 
