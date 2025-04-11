@@ -43,7 +43,7 @@ Before writing any code, you'll need to set up a few things in Visual Studio to 
     ```
     The base address doesn't need to be `0x91D00000` but it must not conflict with the base address of any other loaded plugin and must be greater than `0x82000000` + the size of the application currently running. I recommended setting the base address to anything greater than `0x90000000`.
     Now set this file as your config file by going to your project properties again in `Xbox 360 Image Conversion > General > Configuration File`.
--   If you want to deploy the XEX file to your console automatically after building it, go to `Console Deployment > General > Deployment Type` and set your deployment type to `Copy to Hard Drive`. Now go to `Console Deployment > Copy To Hard Drive > Deployment Root` and set the path to where you want the XEX file to be uploaded on your hard drive. I usually set mine to `hdd:\Plugins` but most people put their plugins at the root of their hard drive (`hdd:\`). **Note: your console needs to be set as the default console in Xbox 360 Neighborhood!**
+-   If you want to deploy the XEX file to your console automatically after building it, go to `Console Deployment > General > Deployment Type` and set your deployment type to `Copy to Hard Drive`. Now go to `Console Deployment > Copy To Hard Drive > Deployment Root` and set the path to where you want the XEX file to be uploaded on your hard drive. I usually set mine to `hdd:\Plugins` but most people put their plugins at the root of their hard drive (`hdd:\`). **Your console needs to be set as the default console in Xbox 360 Neighborhood!**
 
 ## Hello World!
 
@@ -131,7 +131,8 @@ The result should look like this:
 
 <br/>
 
-**Note:** A clean solution with this getting started project is available [here](./GettingStarted) if you want to start from it or play around with it. I recommended doing all the previous steps manually in your own project instead of starting from the example given. The best way to learn is to actually do it yourself!
+> [!NOTE]
+> A clean solution with this getting started project is available [here](./GettingStarted) if you want to start from it or play around with it. I recommended doing all the previous steps manually in your own project instead of starting from the example given. The best way to learn is to actually do it yourself!
 
 <br/><br/>
 

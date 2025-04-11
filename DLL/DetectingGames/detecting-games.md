@@ -119,7 +119,8 @@ You might be wondering why we are using `ExCreateThread` instead of `CreateThrea
 
 <br/>
 
-**Note:** The code example shown in this page is available [here](detecting-games.cpp).
+> [!NOTE]
+> The code example shown in this page is available [here](detecting-games.cpp).
 
 <br/><br/>
 

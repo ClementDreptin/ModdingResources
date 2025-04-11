@@ -48,7 +48,8 @@ We have successfully hooked a function! Now, every time `GameFunction` gets call
 
 MW2 has a function called `SV_ExecuteClientCommand` that monitors button inputs. Hooking it is going to allow us to know when the user presses or releases a button. We are just going to print the command passed to the function in the killfeed, it's up to you to imagine what you can do with it!
 
-**Note**: Commands passed to `SV_ExecuteClientCommand` are not always explicit strings. For button events, the string has the following format: `n <number>`. There are two events per button, a button pressed event and a button released event, the event numbers for one button are consecutive. For example, the dpad left pressed event is `n 19` and the dpad left released event is `n 20`.
+> [!NOTE]
+> Commands passed to `SV_ExecuteClientCommand` are not always explicit strings. For button events, the string has the following format: `n <number>`. There are two events per button, a button pressed event and a button released event, the event numbers for one button are consecutive. For example, the dpad left pressed event is `n 19` and the dpad left released event is `n 20`.
 
 First, we need to create our detour pointer and hook function:
 
@@ -112,7 +113,8 @@ You can now get on MW2 with your DLL loaded, press buttons while being in a game
 
 <br/>
 
-**Note:** The code example shown in this page is available [here](hooking-functions.cpp).
+> [!NOTE]
+> The code example shown in this page is available [here](hooking-functions.cpp).
 
 <br/><br/>
 
