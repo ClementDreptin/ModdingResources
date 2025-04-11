@@ -115,7 +115,7 @@ int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 }
 ```
 
-You might be wondering why we are using `ExCreateThread` instead of `CreateThread`, which is a function provided by Windows in a header file. The reason is that, in order to keep your thread running even when you switch games, you need to pass `2` in the `creationFlags` argument. Passing `2` to the `dwCreationFlags` argument of `CreateThread` does not keep your thread running when you switch games.
+You might be wondering why we are using `ExCreateThread` instead of `CreateThread`, which is a function provided by Windows in a header file. The reason is that, in order to keep your thread running even when you switch games, you need to pass `2`, which is the value for creating a system thread, in the `creationFlags` argument. Passing `2` to the `dwCreationFlags` argument of `CreateThread` does not keep your thread running when you switch games.
 
 <br/>
 
