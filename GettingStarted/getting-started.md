@@ -33,7 +33,6 @@ Before writing any code, you'll need to set up a few things in Visual Studio to 
             <compressed />
         </format>
         <mediatypes>
-            <default />
             <allpackages/>
         </mediatypes>
         <gameregion>
