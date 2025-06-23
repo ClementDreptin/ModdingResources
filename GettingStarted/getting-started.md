@@ -115,10 +115,13 @@ The last thing to do is setting the DLL as one of your Dashlaunch plugins. Edit 
 
 ```INI
 plugin1 = <path_to_xbdm>\xbdm.xex
-plugin2 = <path_to_your_dll>\<your_dll_name>.xex
+plugin2 = <path_to_jrpc2>\JRPC2.xex
+plugin3 = <path_to_your_dll>\<your_dll_name>.xex
 ```
 
-Your DLL does not need to be set as the second plugin specifically, it's fine if you have other plugins between xbdm and your DLL. It is recommended to have xbdm set as your first plugin though, as some other plugins might depend on it.
+Your DLL does not need to be set as the third plugin specifically, it's fine if you have other plugins between xbdm, JRPC2 and your DLL. It is recommended to have xbdm set as your first plugin though as well as JRPC2 as second, as a lot of plugins tend to depend on functionality provided through them.
+
+JRPC2 is required as it allows calling `XNotifyQueueUI` from a system thread, as that does not work by default and you'd usually need to call it from a non-system thread which is a bit beyond the scope of this guide.
 
 Now reboot your console to apply the settings.
 
