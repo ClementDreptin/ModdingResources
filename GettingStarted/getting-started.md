@@ -96,16 +96,42 @@ XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam
 
 <br/>
 
+Our plugin will be loaded by Dashlaunch from a system thread and notifications can't be created from system threads by default. If you have an RPC server, such as JRPC2 or XDRPC, loaded as a plugin already, you don't need to do anything because they already patch the system to allow notifications to be created from system threads. If you don't have an RPC server loaded, change the `switch` statement from the main function as such:
+
+```C++
+uint32_t defaultInstruction = 0;
+uintptr_t patchAddress = 0x816A3158;
+
+switch (reason)
+{
+    case DLL_PROCESS_ATTACH:
+        if (defaultInstruction == 0)
+            defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
+        *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
+
+        break;
+    case DLL_PROCESS_DETACH:
+        if (defaultInstruction != 0)
+            *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
+
+        break;
+}
+```
+
+<br>
+
 We can now call `XNotifyQueueUI` when our DLL gets loaded like so:
 
 ```C++
 switch (reason)
 {
+    // ...
     case DLL_PROCESS_ATTACH:
+        // ...
         XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
+
         break;
-    case DLL_PROCESS_DETACH:
-        break;
+    // ...
 }
 ```
 
@@ -115,13 +141,10 @@ The last thing to do is setting the DLL as one of your Dashlaunch plugins. Edit 
 
 ```INI
 plugin1 = <path_to_xbdm>\xbdm.xex
-plugin2 = <path_to_jrpc2>\JRPC2.xex
-plugin3 = <path_to_your_dll>\<your_dll_name>.xex
+plugin2 = <path_to_your_dll>\<your_dll_name>.xex
 ```
 
-Your DLL does not need to be set as the third plugin specifically, it's fine if you have other plugins between xbdm, JRPC2 and your DLL. It is recommended to have xbdm set as your first plugin though as well as JRPC2 as second, as a lot of plugins tend to depend on functionality provided through them.
-
-JRPC2 is required as it allows calling `XNotifyQueueUI` from a system thread, as that does not work by default and you'd usually need to call it from a non-system thread which is a bit beyond the scope of this guide.
+Your DLL does not need to be set as the second plugin specifically, it's fine if you have other plugins between xbdm and your DLL. It is recommended to have xbdm set as your first plugin though, as some other plugins might depend on it.
 
 Now reboot your console to apply the settings.
 

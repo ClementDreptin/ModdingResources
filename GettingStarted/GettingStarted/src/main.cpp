@@ -19,12 +19,23 @@ XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam
 
 int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 {
+    uint32_t defaultInstruction = 0;
+    uintptr_t patchAddress = 0x816A3158;
+
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
+        if (defaultInstruction == 0)
+            defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
+        *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
+
         XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
+
         break;
     case DLL_PROCESS_DETACH:
+        if (defaultInstruction != 0)
+            *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
+
         break;
     }
 
