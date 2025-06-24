@@ -96,16 +96,42 @@ XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam
 
 <br/>
 
+Our plugin will be loaded by Dashlaunch from a system thread and notifications can't be created from system threads by default. If you have an RPC server, such as JRPC2 or XDRPC, loaded as a plugin already, you don't need to do anything because they already patch the system to allow notifications to be created from system threads. If you don't have an RPC server loaded, change the `switch` statement from the main function as such:
+
+```C++
+uint32_t defaultInstruction = 0;
+uintptr_t patchAddress = 0x816A3158;
+
+switch (reason)
+{
+    case DLL_PROCESS_ATTACH:
+        if (defaultInstruction == 0)
+            defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
+        *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
+
+        break;
+    case DLL_PROCESS_DETACH:
+        if (defaultInstruction != 0)
+            *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
+
+        break;
+}
+```
+
+<br>
+
 We can now call `XNotifyQueueUI` when our DLL gets loaded like so:
 
 ```C++
 switch (reason)
 {
+    // ...
     case DLL_PROCESS_ATTACH:
+        // ...
         XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
+
         break;
-    case DLL_PROCESS_DETACH:
-        break;
+    // ...
 }
 ```
 
