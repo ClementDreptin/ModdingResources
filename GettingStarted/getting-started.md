@@ -68,7 +68,7 @@ int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 If you're not too familiar with the Windows eco-system, Windows uses a non-standard naming convention for their entry points and the entry point of a DLL must have the following signature:
 
 ```C++
-int DllMain(HANDLE hModule, DWORD reason, void *pReserved);
+BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved);
 ```
 
 <br/>
@@ -96,18 +96,22 @@ XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam
 
 <br/>
 
-Our plugin will be loaded by Dashlaunch from a system thread and notifications can't be created from system threads by default. If you have an RPC server, such as JRPC2 or XDRPC, loaded as a plugin already, you don't need to do anything because they already patch the system to allow notifications to be created from system threads. If you don't have an RPC server loaded, change the `switch` statement from the main function as such:
+Our plugin will be loaded by Dashlaunch from a system thread and notifications can't be created from system threads by default. If you have an RPC server, such as JRPC2 or XDRPC, loaded as a plugin already, you don't need to do anything because they already patch the system to allow notifications to be created from system threads. If you don't have an RPC server loaded, change the `main` function as such:
 
 ```C++
-uint32_t defaultInstruction = 0;
-uintptr_t patchAddress = 0x816A3158;
+static uint32_t defaultInstruction = 0;
+static uintptr_t patchAddress = 0x816A3158;
 
-switch (reason)
+BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 {
+    switch (reason)
+    {
     case DLL_PROCESS_ATTACH:
         if (defaultInstruction == 0)
             defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
         *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
+
+        XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
 
         break;
     case DLL_PROCESS_DETACH:
@@ -115,6 +119,9 @@ switch (reason)
             *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
 
         break;
+    }
+
+    return TRUE;
 }
 ```
 

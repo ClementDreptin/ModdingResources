@@ -17,11 +17,11 @@ void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)
 typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas, const wchar_t *displayText, void *pContextData);
 XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 
-int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
-{
-    uint32_t defaultInstruction = 0;
-    uintptr_t patchAddress = 0x816A3158;
+static uint32_t defaultInstruction = 0;
+static uintptr_t patchAddress = 0x816A3158;
 
+BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
+{
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
