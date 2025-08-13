@@ -96,18 +96,20 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 Now, to run `MonitorTitleId` in a separate thread, simply call `ExCreateThread` and pass a pointer to `MonitorTitleId` to it in your main function like so:
 
 ```C++
+HANDLE g_ThreadHandle = INVALID_HANDLE_VALUE;
+
 BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 {
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
         // Run MonitorTitleId in separate thread
-        ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
+        ExCreateThread(&g_ThreadHandle, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
         break;
     case DLL_PROCESS_DETACH:
         g_Running = false;
-        // We give the system some time to clean up the thread before exiting
-        Sleep(250);
+        // Wait for the run thread to finish
+        WaitForSingleObject(g_ThreadHandle, INFINITE);
         break;
     }
 

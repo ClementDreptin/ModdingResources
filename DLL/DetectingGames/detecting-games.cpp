@@ -70,6 +70,8 @@ uint32_t MonitorTitleId(void *pThreadParameter)
     return 0;
 }
 
+HANDLE g_ThreadHandle = INVALID_HANDLE_VALUE;
+
 // State variables for enabling notifications in system threads
 static uint32_t defaultInstruction = 0;
 static uintptr_t patchAddress = 0x816A3158;
@@ -85,7 +87,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
         *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
 
         // Run MonitorTitleId in separate thread
-        ExCreateThread(nullptr, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
+        ExCreateThread(&g_ThreadHandle, 0, nullptr, nullptr, reinterpret_cast<PTHREAD_START_ROUTINE>(MonitorTitleId), nullptr, 2);
         break;
     case DLL_PROCESS_DETACH:
         // Remove patch for system thread notifications
@@ -93,8 +95,8 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
             *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
 
         g_Running = false;
-        // We give the system some time to clean up the thread before exiting
-        Sleep(250);
+        // Wait for the run thread to finish
+        WaitForSingleObject(g_ThreadHandle, INFINITE);
         break;
     }
 
