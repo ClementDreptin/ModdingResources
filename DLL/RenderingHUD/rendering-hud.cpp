@@ -554,6 +554,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 
         // Wait for the run thread to finish
         WaitForSingleObject(g_ThreadHandle, INFINITE);
+        CloseHandle(g_ThreadHandle);
         break;
     }
 
