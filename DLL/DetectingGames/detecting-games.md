@@ -96,7 +96,7 @@ uint32_t MonitorTitleId(void *pThreadParameter)
 Now, to run `MonitorTitleId` in a separate thread, simply call `ExCreateThread` and pass a pointer to `MonitorTitleId` to it in your main function like so:
 
 ```C++
-int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
+BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 {
     switch (reason)
     {
@@ -116,6 +116,9 @@ int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
 ```
 
 You might be wondering why we are using `ExCreateThread` instead of `CreateThread`, which is a function provided by Windows in a header file. The reason is that, in order to keep your thread running even when you switch games, you need to pass `2`, which is the value for creating a system thread, in the `creationFlags` argument. Passing `2` to the `dwCreationFlags` argument of `CreateThread` does not keep your thread running when you switch games.
+
+> [!IMPORTANT]
+> For notifications to display from system threads, make sure you include the patch code described in the [Getting started guide](../../GettingStarted/getting-started.md#notifications-from-system-threads).
 
 <br/>
 

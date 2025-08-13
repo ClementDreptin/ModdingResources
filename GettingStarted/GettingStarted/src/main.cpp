@@ -17,6 +17,7 @@ void *ResolveFunction(const std::string &moduleName, uint32_t ordinal)
 typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas, const wchar_t *displayText, void *pContextData);
 XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 
+// State variables for enabling notifications in system threads
 static uint32_t defaultInstruction = 0;
 static uintptr_t patchAddress = 0x816A3158;
 
@@ -25,6 +26,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
+        // Allow notifications to be displayed from system threads
         if (defaultInstruction == 0)
             defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
         *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
@@ -33,6 +35,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 
         break;
     case DLL_PROCESS_DETACH:
+        // Remove patch for system thread notifications
         if (defaultInstruction != 0)
             *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
 

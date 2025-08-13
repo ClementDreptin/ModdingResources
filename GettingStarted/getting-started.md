@@ -51,7 +51,7 @@ Once your project is set up, replace everything from your main cpp file with thi
 ```C++
 #include <xtl.h>
 
-int DllMain(HANDLE hModule, DWORD reason, void *pReserved)
+BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 {
     switch (reason)
     {
@@ -94,11 +94,12 @@ typedef void (*XNOTIFYQUEUEUI)(uint32_t type, uint32_t userIndex, uint64_t areas
 XNOTIFYQUEUEUI XNotifyQueueUI = static_cast<XNOTIFYQUEUEUI>(ResolveFunction("xam.xex", 656));
 ```
 
-<br/>
+### Notifications from system threads
 
 Our plugin will be loaded by Dashlaunch from a system thread and notifications can't be created from system threads by default. If you have an RPC server, such as JRPC2 or XDRPC, loaded as a plugin already, you don't need to do anything because they already patch the system to allow notifications to be created from system threads. If you don't have an RPC server loaded, change the `main` function as such:
 
 ```C++
+// State variables for enabling notifications in system threads
 static uint32_t defaultInstruction = 0;
 static uintptr_t patchAddress = 0x816A3158;
 
@@ -107,6 +108,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
+        // Allow notifications to be displayed from system threads
         if (defaultInstruction == 0)
             defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
         *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
@@ -115,6 +117,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
 
         break;
     case DLL_PROCESS_DETACH:
+        // Remove patch for system thread notifications
         if (defaultInstruction != 0)
             *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
 
