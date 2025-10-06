@@ -27,7 +27,6 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)build\$(Configuration)\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(Configuration)\obj\</IntDir>
-    <RemoteRoot>hdd:\Plugins</RemoteRoot>
     <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     <ImageXexOutput>$(OutDir)$(ProjectName).xex</ImageXexOutput>
   </PropertyGroup>
@@ -35,11 +34,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ObjectFileName>$(IntDir)$(ProjectName)\%(RelativeDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <DebugInformationFormat Condition="'$(Configuration)'=='Debug'">ProgramDatabase</DebugInformationFormat>
+      <TreatWarningAsError Condition="'$(Configuration)'=='Release'">true</TreatWarningAsError>
       <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)'=='Release'">Full</Optimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
@@ -50,11 +48,10 @@
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">NDEBUG;_XBOX</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation Condition="'$(Configuration)'=='Debug'">true</GenerateDebugInformation>
-      <ProgramDatabaseFile Condition="'$(Configuration)'=='Debug'">$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
-      <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
-      <SetChecksum Condition="'$(Configuration)'=='Release'">true</SetChecksum>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SetChecksum>true</SetChecksum>
       <AdditionalOptions>/DLL /ENTRY:"_DllMainCRTStartup" /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
+      <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
     </Link>
     <Deploy>
       <DeploymentType>CopyToHardDrive</DeploymentType>
