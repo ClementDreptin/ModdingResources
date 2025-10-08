@@ -100,7 +100,7 @@ Our plugin will be loaded by Dashlaunch from a system thread and notifications c
 
 ```C++
 // State variables for enabling notifications in system threads
-static uint32_t defaultInstruction = 0;
+static uint16_t defaultInstruction = 0;
 static uintptr_t patchAddress = 0x816A3158;
 
 BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
@@ -110,8 +110,8 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
     case DLL_PROCESS_ATTACH:
         // Allow notifications to be displayed from system threads
         if (defaultInstruction == 0)
-            defaultInstruction = *reinterpret_cast<uint32_t *>(patchAddress);
-        *reinterpret_cast<uint32_t *>(patchAddress) = 0x4800001C;
+            defaultInstruction = *reinterpret_cast<uint16_t *>(patchAddress);
+        *reinterpret_cast<uint16_t *>(patchAddress) = 0x4800;
 
         XNotifyQueueUI(0, 0, XNOTIFY_SYSTEM, L"Hello World!", nullptr);
 
@@ -119,7 +119,7 @@ BOOL DllMain(HINSTANCE hModule, DWORD reason, void *pReserved)
     case DLL_PROCESS_DETACH:
         // Remove patch for system thread notifications
         if (defaultInstruction != 0)
-            *reinterpret_cast<uint32_t *>(patchAddress) = defaultInstruction;
+            *reinterpret_cast<uint16_t *>(patchAddress) = defaultInstruction;
 
         break;
     }
